@@ -1,11 +1,26 @@
-class AnnotationsMigrationGenerator < Rails::Generator::Base 
-  def manifest 
-    record do |m| 
-      m.migration_template 'migration.rb', 'db/migrate' 
-    end 
+class AnnotationsMigrationGenerator < Rails::Generator::Base
+
+  attr_accessor :version
+
+  def initialize(*runtime_args)
+    super(*runtime_args)
+    if @args[0].nil?
+      @version = "v1"
+    else
+      @version = @args[0].downcase
+    end
   end
-  
+
+  def manifest
+    record do |m|
+      if @version
+        m.migration_template "migration_#{@version}.rb", 'db/migrate'
+      end
+    end
+  end
+
   def file_name
-    "annotations_migration"
+    "annotations_migration_#{@version}"
   end
+
 end
