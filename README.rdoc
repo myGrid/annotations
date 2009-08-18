@@ -181,12 +181,71 @@ The Annotations plugin has now been installed and is ready for use. See the Usag
 
 == Usage
 
-=== Important Notes
+=== Quick Use
 
-* When using the built in Annotations Controller to create annotations, only the current user (obtained from the _current_user_ method call in the controller) is set as the source of these Annotations. If you need a different source to be set, you can write your own Annotation creation methods in your app that directly creates the Annotation AR model.
+* To add a bunch of Annotations to a model instance:
+
+    book = Book.find(1)
+    data = {
+      :description => "My bookie wookie",
+      :rating => 5,
+      :tag => [ "horror", "romance", "indiluted", "true story" ] }
+    new_annotations = book.create_annotations(data, current_user)
+
+* Create an Annotation directly:
+
+    book = Book.find(10)
+    ann1 = Annotation.new(:attribute_name => "tag", 
+                          :value => "hot", 
+                          :source_type => "User", 
+                          :source_id => 100,
+                          :annotatable_type => book.class.name,
+                          :annotatable_id => book.id)
+
+* Building a simple form for adding a single Annotation, like 'description', to a specified model object:
+
+    <% form_tag annotations_url do %>
+      <%= hidden_field_tag "annotation[annotatable_type]", "Book" -%>
+      <%= hidden_field_tag "annotation[annotatable_id]", 100 -%>
+      <%= hidden_field_tag "annotation[attribute_name]", "description" -%>
+      <%= text_area_tag "annotation[value]" -%>			
+      <%= submit_tag "Submit", :disable_with => "Submitting..." -%>
+    <% end %>
+
+* Building a simple form for adding multiple Annotations from one field, like 'tags', to a specified model object:
+
+    <% form_tag create_multiple_annotations_url do %>
+      <%= hidden_field_tag "separator", "," -%>
+      <%= hidden_field_tag "annotation[annotatable_type]", "Book" -%>
+    	<%= hidden_field_tag "annotation[annotatable_id]", 100 -%>
+      <%= hidden_field_tag "annotation[attribute_name]", "description" -%>
+      <%= text_area_tag "annotation[value]" -%>			
+      <%= submit_tag "Submit", :disable_with => "Submitting..." -%>
+    <% end %>
+
+* Find all Annotations for a model instance (that has _acts_annotatable_ specified in the model's class):
+
+    book = Book.find(6806)
+    annotations = book.annotations
+
+* Find all 'tag' Annotations for a model instance (that has _acts_annotatable_ specified in the model's class):
+
+    book = Book.find(23)
+    tag_annotations = book.annotations_with_attribute("tag")
+
+* Find all Annotations for a model instance that have a number of different attribute names (that has _acts_annotatable_ specified in the model's class):
+
+    book = Book.find(22124)
+    rating_annotations = book.annotations_with_attributes([ "rating-performance", "rating-usefulness", "rating-documentation" ])
+
+See _More Examples_ below.
+
+=== Important Usage Notes
+
+* When using the built in Annotations Controller to create annotations (as in the forms examples above), the default is to use the _current_user_ as the Source. However, you can explicitly specify the source by adding fields for "annotations[source_type]" and "annotations[source_id]".
 * Attributes are NOT case-sensitive. So 'description' and 'Description' will be the same AnnotationAttribute entity and therefore all annotations with that attribute will be the exact same type/class/kind of annotation).
 * When displaying the values of annotations, ALWAYS clean the data using methods like _h_ (html escape), _sanitize_ and _white_list_.
-* By default, duplicate annotations cannot be created (by "duplicate" we mean: same value for the same attribute, on an annotatable object, regardless of source). For example: a user cannot add a description to a service that matches an existing description for that service. You can override this behaviour for annotations with certain attributes, using the configuration option: _attribute_names_to_allow_duplicates_. NOTE: this is different to the _limits_per_source config_ option, which isn't about duplicate annotations, but rather limiting the quantity of annotations of a specific attribute on a specific annotatable object by a specific source.
+* By default, duplicate annotations cannot be created (by "duplicate" we mean: same value for the same attribute, on an annotatable object, regardless of source). For example: a user cannot add a description to a service that matches an existing description for that service. You can override this behaviour for annotations with certain attributes, using the configuration option: _attribute_names_to_allow_duplicates_. NOTE: this is different to the _limits_per_source_ config_ option, which isn't about duplicate annotations, but rather limiting the quantity of annotations of a specific attribute on a specific annotatable object by a specific source.
 
 === Config Options
 
@@ -202,19 +261,56 @@ All the config options can be found in _lib/annotations/config.rb_, listed below
 
 TODO: explain and document these.
 
-=== Examples
+=== More Examples
 
-Find annotatable objects that have a specific attribute name AND value:
+* Create multiple 'tag' Annotations from a single string value:
 
-* Gets all annotatables regardless of type:
+    params = { :annotatable_type => "Book",
+               :annotatable_id => 78,
+               :attribute_name => "tag",
+               :value => "workflow, taverna, brilliant",
+               :source_type => "Group",
+               :source_id => 4 }
+    Annotation.create_multiple(params, ',')
 
-    Annotation.find_annotatables_with_attribute_name_and_value("complexity", "O(x^2)")
+* Find all 'comment' Annotations, by a specified Source, for a model instance (that has _acts_annotatable_ specified in the model's class):
+  
+    book = Book.find(67)
+    user = User.find_by_name("jane")
+    annotations = book.annotations_with_attribute_and_by_source("comment", user)
 
-* Gets only annotatables that are Books:
+* Find all Annotations, that don't have the specified attributes, for a model instance (that has _acts_annotatable_ specified in the model's class):
 
-    Book.with_annotations_with_attribute_name_and_value("Tag", "Amusing rhetoric")
+    book = Book.find(56)
+    annotations = book.all_annotations_excluding_attributes([ "tag", "note", "example" ])
 
-TODO: add more!
+* Find Annotatable objects that have a specific attribute name AND value:
+  
+  * Gets all annotatables regardless of type:
+
+      Annotation.find_annotatables_with_attribute_name_and_value("complexity", "O(x^2)")
+  
+  * Gets only annotatables that are Books:
+  
+      Book.with_annotations_with_attribute_name_and_value("Tag", "Amusing rhetoric")
+
+* Find Annotatable objects that have a combination of attribute names AND values:
+
+    Annotation.find_annotatables_with_attribute_names_and_values([ "tag" ], [ "fiction", "sci-fi", "fantasy" ])
+
+    Annotation.find_annotatables_with_attribute_names_and_values([ "tag", "keyword", "category" ], [ "fiction", "fantasy" ])
+
+* Count the number of Annotations, by any Source, for a model instance (that has _acts_annotatable_ specified in the model's class):
+    
+    book = Book.find(90)
+    count = book.count_annotations_by("all")
+
+* Count the number of Annotations, by Users, for a model instance (that has _acts_annotatable_ specified in the model's class):
+    
+    book = Book.find(90)
+    count = book.count_annotations_by("User")
+
+TODO: add more advanced examples!
 
 === Extending the Plugin
 
@@ -281,6 +377,7 @@ TODO: list files and what the purpose of each is.
 
 * May not work with sqlite and sqlite3 databases.
 * Not tested with Postgres DB.
+* Doesn't work consistently well with Single Table Inheritance (STI).
 
 == Troubleshooting
 
