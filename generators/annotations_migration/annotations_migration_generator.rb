@@ -5,7 +5,7 @@ class AnnotationsMigrationGenerator < Rails::Generator::Base
   def initialize(*runtime_args)
     super(*runtime_args)
     if @args[0].nil?
-      @version = "v1"
+      @version = "all"
     else
       @version = @args[0].downcase
     end
@@ -14,13 +14,18 @@ class AnnotationsMigrationGenerator < Rails::Generator::Base
   def manifest
     record do |m|
       if @version
-        m.migration_template "migration_#{@version}.rb", 'db/migrate'
+        if @version == "all"
+          Dir.chdir(File.join(File.dirname(__FILE__), "templates")) do
+            Dir.glob("*.rb").each do |f|
+              version = f.gsub(/.rb/, '').split('_')[1]
+              m.migration_template "migration_#{version}.rb", 'db/migrate', { :migration_file_name => "annotations_migration_#{version}" }
+            end
+          end
+        else
+          m.migration_template "migration_#{@version}.rb", 'db/migrate', { :migration_file_name => "annotations_migration_#{@version}" }
+        end
       end
     end
-  end
-
-  def file_name
-    "annotations_migration_#{@version}"
   end
 
 end
