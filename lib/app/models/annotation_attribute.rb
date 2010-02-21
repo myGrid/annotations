@@ -13,10 +13,20 @@ class AnnotationAttribute < ActiveRecord::Base
 
   # If the identifier is not set, generate it before validation takes place.
   # See Annotations::Config::default_attribute_identifier_template
-  # for more info
+  # for more info.
+  #
+  # The rules are:
+  # - if an identifier is manually set, nothing happens.
+  # - if no identifier is set:
+  #   - if name is enclosed in chevrons (eg: <http://...>) then the chevrons are taken out and the result is the new identifier.
+  #   - if name is a URI beginning with http:// or urn: then this is used directly as the identifier.
+  #   - in all other cases the identifier will be generated using the template specified by
+  #     Annotations::Config::default_attribute_identifier_template (where '%s' in the template will be replaced with name.
   def before_validation
     unless self.name.blank? or !self.identifier.blank?
-      if self.name.match(/^http:\/\//) or self.name.match(/^urn:/) or self.name.match(/^<.+>$/)
+      if self.name.match(/^<.+>$/)
+        self.identifier = self.name[1, self.name.length-1].chop
+      elsif self.name.match(/^http:\/\//) or self.name.match(/^urn:/)
         self.identifier = self.name
       else
         self.identifier = (Annotations::Config::default_attribute_identifier_template % self.name)
