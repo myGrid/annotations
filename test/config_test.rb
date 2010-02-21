@@ -10,7 +10,15 @@ class ConfigTest < ActiveSupport::TestCase
     Annotations::Config.attribute_names_to_allow_duplicates.concat([ "allow_duplicates_for_this" ])
     Annotations::Config.value_restrictions.update({ "rating" => { :in => 1..5, :error_message => "Please provide a rating between 1 and 5" },
                                                     "category" => { :in => [ "fruit", "nut", "fibre" ], :error_message => "Please select a valid category" } })
-    Annotations::Config.default_attribute_identifier_template = "http://x.com/attribute#%s" 
+    Annotations::Config.default_attribute_identifier_template = "http://x.com/attribute#%s"
+    Annotations::Config.attribute_name_transform_for_identifier = Proc.new { |name|
+      regex = /\.|-|:/
+      if name.match(regex)
+        name.gsub(regex, ' ').titleize.gsub(' ', '').camelize(:lower)
+      else
+        name.camelize(:lower)
+      end
+    }
   end
   
   def teardown
@@ -291,8 +299,8 @@ class ConfigTest < ActiveSupport::TestCase
     assert attrib3.valid?
     assert_equal "www.example.org/annotations#details", attrib3.identifier
 
-    attrib4 = AnnotationAttribute.create(:name => "the_attribute")
+    attrib4 = AnnotationAttribute.create(:name => "hello_world-attribute:zero")
     assert attrib4.valid?
-    assert_equal "http://x.com/attribute#the_attribute", attrib4.identifier
+    assert_equal "http://x.com/attribute#helloWorldAttributeZero", attrib4.identifier
   end
 end
