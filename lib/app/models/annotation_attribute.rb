@@ -21,7 +21,7 @@ class AnnotationAttribute < ActiveRecord::Base
   #   - if name is enclosed in chevrons (eg: <http://...>) then the chevrons are taken out and the result is the new identifier.
   #   - if name is a URI beginning with http:// or urn: then this is used directly as the identifier.
   #   - in all other cases the identifier will be generated using the template specified by
-  #     Annotations::Config::default_attribute_identifier_template (where '%s' in the template will be replaced with name.
+  #     Annotations::Config::default_attribute_identifier_template, where '%s' in the template will be replaced with name.
   def before_validation
     unless self.name.blank? or !self.identifier.blank?
       if self.name.match(/^<.+>$/)

@@ -290,5 +290,9 @@ class ConfigTest < ActiveSupport::TestCase
     attrib3 = AnnotationAttribute.create(:name => "<www.example.org/annotations#details>")
     assert attrib3.valid?
     assert_equal "www.example.org/annotations#details", attrib3.identifier
+
+    attrib4 = AnnotationAttribute.create(:name => "the_attribute")
+    assert attrib4.valid?
+    assert_equal "http://x.com/attribute#the_attribute", attrib4.identifier
   end
 end
