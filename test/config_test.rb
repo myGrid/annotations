@@ -10,6 +10,7 @@ class ConfigTest < ActiveSupport::TestCase
     Annotations::Config.attribute_names_to_allow_duplicates.concat([ "allow_duplicates_for_this" ])
     Annotations::Config.value_restrictions.update({ "rating" => { :in => 1..5, :error_message => "Please provide a rating between 1 and 5" },
                                                     "category" => { :in => [ "fruit", "nut", "fibre" ], :error_message => "Please select a valid category" } })
+    Annotations::Config.default_attribute_identifier_template = "http://x.com/attribute#%s" 
   end
   
   def teardown
@@ -275,5 +276,19 @@ class ConfigTest < ActiveSupport::TestCase
     assert !ann5.save
     assert ann5.errors.full_messages.include?("Please select a valid category")
     assert_equal 2, bk2.annotations(true).length
+  end
+
+  def test_default_attribute_identifier_template
+    attrib1 = AnnotationAttribute.create(:name => "myAttribute")
+    assert attrib1.valid?
+    assert_equal "http://x.com/attribute#myAttribute", attrib1.identifier
+
+    attrib2 = AnnotationAttribute.create(:name => "http://www.example.org/annotations#details")
+    assert attrib2.valid?
+    assert_equal "http://www.example.org/annotations#details", attrib2.identifier
+
+    attrib3 = AnnotationAttribute.create(:name => "<www.example.org/annotations#details>")
+    assert attrib3.valid?
+    assert_equal "<www.example.org/annotations#details>", attrib3.identifier
   end
 end
