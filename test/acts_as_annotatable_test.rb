@@ -101,6 +101,7 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
     end
     assert_equal 5, bk.annotations.length
 
+
     data2 = { :tagx => "ko", :tagy => [ "oii", "tuo" ] }
 
     anns2 = bk.create_annotations(data2, users(:jane))
@@ -110,6 +111,17 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
       assert_kind_of Annotation, a
     end
     assert_equal 8, bk.annotations(true).length
+
+
+    data3 = { :tagx => "ko", :tagy => [ "oii", "piopjpjnp" ] }
+
+    anns3 = bk.create_annotations(data3, users(:jane))
+
+    assert_equal 1, anns3.length
+    anns2.each do |a|
+      assert_kind_of Annotation, a
+    end
+    assert_equal 9, bk.annotations(true).length
   end
   
   def test_adding_of_annotation
