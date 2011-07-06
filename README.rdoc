@@ -95,13 +95,13 @@ This uses a library from the {version_fu plugin}[http://github.com/jmckible/vers
 
 To install the plugin as a git cloned repo (this allows you to easily update the plugin in the future):
 
-  ruby script/plugin install git://github.com/jits/annotations.git
+  ruby script/plugin install git://github.com/myGrid/annotations.git
 
 *Note:* this requires git to be installed.
 
 To install the plugin the regular way:
 
-  ruby script/plugin install http://github.com/jits/annotations.git/
+  ruby script/plugin install http://github.com/myGrid/annotations.git/
 
 === Setup
 
