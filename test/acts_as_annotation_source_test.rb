@@ -56,9 +56,9 @@ class ActsAsAnnotationSourceTest < ActiveSupport::TestCase
   def test_annotations_by_hash_method
     user1 = users(:jane)
     expected_hash1 = {
-      "Tag" => [ "wizadry", "programming" ],
+      "Tag" => [ "programming", "wizadry" ],
       "Note" => "Remember to buy milk!",
-      "Title" => [ "And It All Falls Down", "Ruby Hashes" ],
+      "Title" => [ "Ruby Hashes", "And It All Falls Down" ],
       "rating" => "4/5"
     }
     assert_equal expected_hash1, user1.annotations_by_hash

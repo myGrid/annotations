@@ -2,9 +2,12 @@
 
 To run the tests for this plugin:
 
-* you have to install this into a dummy Rails v2.3.x app and meet the requirements (see the README file).
+* you have to install this into a dummy Rails v2.3.2 app and meet the requirements (see the README file).
 
-* ensure the gem 'plugin_test_helper' is installed (only tested with v0.3.0).
+* ensure the following gems are installed:
+  
+  gem install plugin_test_helper -v 0.3.0
+  gem install mysql
 
 * ensure database 'annotations_plugin_test' exists on a local MySQL server installation (with default ports) and username 'annotations' with password 'annotations_plugin'. Commands for MySQL:
 

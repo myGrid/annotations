@@ -148,7 +148,7 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
       "Summary" => "Something interesting happens",
       "length" => "345",
       "Title" => "Harry Potter and the Exploding Men's Locker Room",
-      "Tag" => [ "amusing rhetoric", "wizadry" ],
+      "Tag" => [ "wizadry", "amusing rhetoric" ],
       "rating" => "4/5"
     }
     assert_equal expected_hash1, book1.annotations_hash
