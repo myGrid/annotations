@@ -19,7 +19,7 @@ class AnnotationsMigrationGenerator < Rails::Generator::Base
             Dir.glob("*.rb").each do |f|
               version = f.gsub(/.rb/, '').split('_')[1]
               m.migration_template "migration_#{version}.rb", 'db/migrate', { :migration_file_name => "annotations_migration_#{version}" }
-              sleep 1   # So that the timestamps on the migration are not the same!
+              m.sleep 1   # So that the timestamps on the migration are not the same!
             end
           end
         else
