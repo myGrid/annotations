@@ -14,30 +14,13 @@ module Annotations
                    :dependent => :destroy, 
                    :order => 'updated_at ASC'
                    
-          send :extend, SingletonMethods
-          send :include, InstanceMethods
+          __send__ :extend, SingletonMethods
+          __send__ :include, InstanceMethods
         end
       end
       
-      # Class methods added to the model that has been made acts_as_annotatable (ie: the mixin annotatable type).
+      # Class methods added to the model that has been made acts_as_annotatable (ie: the mixin target class).
       module SingletonMethods
-        # Helper finder to get all objects of the mixin annotatable type that have the specified attribute name and value.
-        #
-        # NOTE (1): both the attribute name and the value will be treated case insensitively.
-        def with_annotations_with_attribute_name_and_value(attribute_name, value)
-          return [ ] if attribute_name.blank? or value.nil?
-          
-          obj_type = ActiveRecord::Base.send(:class_name_of_active_record_descendant, self).to_s
-          
-          anns = Annotation.find(:all,
-                                 :joins => :attribute,
-                                 :conditions => { :annotatable_type => obj_type, 
-                                                  :annotation_attributes =>  { :name => attribute_name.strip.downcase }, 
-                                                  :value => value.strip.downcase })
-                                                  
-          return anns.map{|a| a.annotatable}
-        end
-        
         # Helper finder to get all annotations for an object of the mixin annotatable type with the ID provided.
         # This is the same as object.annotations with the added benefit that the object doesnt have to be loaded.
         # E.g: Book.find_annotations_for(34) will give all annotations for the Book with ID 34.
@@ -188,11 +171,13 @@ module Annotations
               val = [ val ].flatten
               val.each do |val_inner|
                 unless val_inner.blank?
-                  ann = self.annotations.create(:attribute_name => attrib,
-                                                :value => val_inner,
-                                                :source_type => source.class.name,
-                                                :source_id => source.id)
-
+                  ann = self.annotations.new(:attribute_name => attrib,
+                                             :source_type => source.class.name,
+                                             :source_id => source.id)
+                  
+                  ann.value = val_inner
+                  ann.save
+                  
                   if ann && ann.valid?
                     anns << ann
                   end
@@ -226,12 +211,12 @@ module Annotations
               if h.has_key?(a.attribute_name)
                 case h[a.attribute_name]
                   when Array
-                    h[a.attribute_name] << a.value
+                    h[a.attribute_name] << a.value_content
                   else
-                    h[a.attribute_name] = [ h[a.attribute_name], a.value ]
+                    h[a.attribute_name] = [ h[a.attribute_name], a.value_content ]
                 end
               else
-                h[a.attribute_name] = a.value
+                h[a.attribute_name] = a.value_content
               end
             end
           end

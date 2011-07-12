@@ -9,18 +9,6 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
     assert_equal 4, chapters(:br_c2).annotations.length
   end
   
-  def test_with_annotations_with_attribute_name_and_value_class_method
-    bks = Book.with_annotations_with_attribute_name_and_value("Tag", "Amusing rhetoric")
-    assert_equal 1, bks.length
-    assert_kind_of Book, bks[0]
-    
-    crs = Chapter.with_annotations_with_attribute_name_and_value("title", "Ruby Hashes")
-    assert_equal 1, crs.length
-    assert_kind_of Chapter, crs[0]
-    
-    assert_equal 0, Book.with_annotations_with_attribute_name_and_value("xyz", "This does not exist!").length
-  end
-  
   def test_find_annotations_for_class_method
     assert_equal 6, Book.find_annotations_for(books(:h).id).length
     assert_equal 5, Book.find_annotations_for(books(:r).id).length
@@ -127,15 +115,17 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
   def test_adding_of_annotation
     ch = chapters(:bh_c10)
     assert_equal 2, ch.annotations.length
-    ann1 = ch.annotations << Annotation.new(:attribute_id => AnnotationAttribute.find_or_create_by_name("tag").id, 
-                                            :value => "test", 
-                                            :source_type => "User", 
-                                            :source_id => 1)
-                                           
-    ann2 = ch.annotations << Annotation.new(:attribute_name => "description", 
-                                            :value => "test2", 
-                                            :source_type => "User", 
-                                            :source_id => 2)
+    ann1 = Annotation.new(:attribute_id => AnnotationAttribute.find_or_create_by_name("tag").id, 
+                          :source_type => "User", 
+                          :source_id => 1)
+    ann1.value = "test"
+    ch.annotations << ann1
+                          
+    ann2 = Annotation.new(:attribute_name => "description", 
+                          :source_type => "User", 
+                          :source_id => 2)
+    ann2.value = "test2"
+    ch.annotations << ann2
                                            
     assert_not_nil(ann1)
     assert_not_nil(ann2)
@@ -146,7 +136,7 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
     book1 = books(:h)
     expected_hash1 = {
       "Summary" => "Something interesting happens",
-      "length" => "345",
+      "length" => 345,
       "Title" => "Harry Potter and the Exploding Men's Locker Room",
       "Tag" => [ "wizadry", "amusing rhetoric" ],
       "rating" => "4/5"

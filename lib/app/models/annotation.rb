@@ -1,8 +1,6 @@
 class Annotation < ActiveRecord::Base
   include AnnotationsVersionFu
   
-  before_validation_on_create :set_default_value_type
-  
   before_validation :process_value_adjustments
   
   belongs_to :annotatable, 
@@ -11,10 +9,14 @@ class Annotation < ActiveRecord::Base
   belongs_to :source, 
              :polymorphic => true
              
+  belongs_to :value,
+             :polymorphic => true,
+             :autosave => true
+             
   belongs_to :attribute,
              :class_name => "AnnotationAttribute",
              :foreign_key => "attribute_id"
-
+             
   belongs_to :version_creator, 
              :class_name => Annotations::Config.user_model_name
   
@@ -25,14 +27,14 @@ class Annotation < ActiveRecord::Base
                         :annotatable_type,
                         :annotatable_id,
                         :attribute_id,
-                        :value,
                         :value_type
                         
   validate :check_annotatable,
            :check_source,
+           :check_value,
            :check_duplicate,
            :check_limit_per_source,
-           :check_value_restrictions
+           :check_content_restrictions
            
   # ========================
   # Versioning configuration
@@ -43,6 +45,9 @@ class Annotation < ActiveRecord::Base
                :polymorphic => true
     
     belongs_to :source, 
+               :polymorphic => true
+               
+    belongs_to :value,
                :polymorphic => true
                
     belongs_to :attribute,
@@ -57,45 +62,17 @@ class Annotation < ActiveRecord::Base
                           :annotatable_type,
                           :annotatable_id,
                           :attribute_id,
-                          :value,
                           :value_type
+    
+    # NOTE: make sure to update the logic in here 
+    # if Annotation#value_content changes!
+    def value_content
+      self.value.nil? ? "" : self.value.ann_content
+    end
+  
   end
   
   # ========================
-  
-  # Returns all the annotatable objects that have a specified attribute name and value.
-  #
-  # NOTE (1): both the attribute name and the value will be treated case insensitively.
-  def self.find_annotatables_with_attribute_name_and_value(attribute_name, value)
-    return [ ] if attribute_name.blank? or value.nil?
-    
-    anns = Annotation.find(:all,
-                           :joins => :attribute,
-                           :conditions => { :annotation_attributes =>  { :name => attribute_name.strip.downcase }, 
-                                            :value => value.strip.downcase })
-                                                  
-    return anns.map{|a| a.annotatable}
-  end
-  
-  # Same as the Annotation.find_annotatables_with_attribute_name_and_value method but 
-  # takes in arrays for attribute names and values.
-  #
-  # This allows you to build any combination of attribute names and values to search on.
-  # E.g. (1): Annotation.find_annotatables_with_attribute_names_and_values([ "tag" ], [ "fiction", "sci-fi", "fantasy" ])
-  # E.g. (2): Annotation.find_annotatables_with_attribute_names_and_values([ "tag", "keyword", "category" ], [ "fiction", "fantasy" ])
-  #
-  # NOTE (1): the arguments to this method MUST be Arrays of Strings.
-  # NOTE (2): all attribute names and the values will be treated case insensitively.
-  def self.find_annotatables_with_attribute_names_and_values(attribute_names, values)
-    return [ ] if attribute_names.blank? or values.blank?
-    
-    anns = Annotation.find(:all,
-                           :joins => :attribute,
-                           :conditions => { :annotation_attributes =>  { :name => attribute_names }, 
-                                            :value => values })
-    
-    return anns.map{|a| a.annotatable}
-  end
   
   # Finder to get all annotations by a given source.
   named_scope :by_source, lambda { |source_type, source_id| 
@@ -149,8 +126,24 @@ class Annotation < ActiveRecord::Base
     self.attribute = AnnotationAttribute.find_or_create_by_name(attr_name)
   end
   
+  alias_method :original_value=, :value=
   def value=(value_in)
-    self[:value] = value_in.to_s
+    val = nil
+    case value_in
+    when String, Symbol
+      val = TextValue.new :text => value_in.to_s
+    when Numeric
+      val = NumberValue.new :number => value_in
+    when ActiveRecord::Base
+      val = value_in
+    else
+      self.errors.add(:value, "is not a valid value object")
+    end
+    self.original_value = val
+  end
+  
+  def value_content
+    self.value.nil? ? "" : self.value.ann_content
   end
   
   def self.create_multiple(params, separator)
@@ -189,25 +182,33 @@ class Annotation < ActiveRecord::Base
   
   protected
   
-  def set_default_value_type
-    self.value_type = "String" if self.value_type.blank?
+  def ok_value_object_type?
+    return !self.value.nil? && 
+           self.value.is_a?(ActiveRecord::Base) && 
+           self.value.class.respond_to?(:is_annotation_value)
   end
   
   def process_value_adjustments
     attr_name = self.attribute_name.downcase
     # Make lowercase or uppercase if required
-    self.value.downcase! if Annotations::Config::attribute_names_for_values_to_be_downcased.include?(attr_name)
-    self.value.upcase! if Annotations::Config::attribute_names_for_values_to_be_upcased.include?(attr_name)
-    
-    # Apply strip text rules
-    Annotations::Config::strip_text_rules.each do |attr, strip_rules|
-      if attr_name == attr.downcase
-        if strip_rules.is_a? Array
-          strip_rules.each do |s|
-            self.value = self.value.gsub(s, '')
+    if ok_value_object_type? && self.value.ann_content.is_a?(String)
+      if Annotations::Config::attribute_names_for_values_to_be_downcased.include?(attr_name)
+        self.value.ann_content = self.value.ann_content.downcase
+      end
+      if Annotations::Config::attribute_names_for_values_to_be_upcased.include?(attr_name)
+        self.value.ann_content = self.value.ann_content.upcase
+      end
+      
+      # Apply strip text rules
+      Annotations::Config::strip_text_rules.each do |attr, strip_rules|
+        if attr_name == attr.downcase
+          if strip_rules.is_a? Array
+            strip_rules.each do |s|
+              self.value.ann_content = self.value.ann_content.gsub(s, '')
+            end
+          elsif strip_rules.is_a? String or strip_rules.is_a? Regexp
+            self.value.ann_content = self.value.ann_content.gsub(strip_rules, '')
           end
-        elsif strip_rules.is_a? String or strip_rules.is_a? Regexp
-          self.value = self.value.gsub(strip_rules, '')
         end
       end
     end
@@ -235,26 +236,35 @@ class Annotation < ActiveRecord::Base
     end
   end
   
-  # This method checks whether duplicates are allowed for this particular annotation type (ie: 
-  # for the attribute that this annotation belongs to). If not, it checks for a duplicate existing annotation.
-  def check_duplicate
-    attr_name = self.attribute_name.downcase
-    if Annotations::Config.attribute_names_to_allow_duplicates.include?(attr_name)
-      return true
+  def check_value
+    if self.value.nil?
+      self.errors.add(:value, "object must be provided")
+      return false
     else
-      existing = Annotation.find(:all,
-                                 :joins => [ :attribute ],
-                                 :conditions => { :annotatable_type =>  self.annotatable_type, 
-                                                  :annotatable_id => self.annotatable_id, 
-                                                  :value => self.value,
-                                                  :annotation_attributes => { :name => attr_name  } })
-      
-      if existing.length == 0 or existing[0].id == self.id
-        # It's all good...
+      if ok_value_object_type?
         return true
       else
-        self.errors.add_to_base("This annotation already exists and is not allowed to be created again.")
+        self.errors.add(:value, "must be a valid annotation value object")
         return false
+      end
+    end
+  end
+  
+  # This method checks whether duplicates are allowed for this particular annotation type (ie: 
+  # for the attribute that this annotation belongs to). 
+  # If not allowed, it checks for a duplicate existing annotation and fails if one does exist.
+  def check_duplicate
+    if ok_value_object_type?
+      attr_name = self.attribute_name.downcase
+      if Annotations::Config.attribute_names_to_allow_duplicates.include?(attr_name)
+        return true
+      else
+        if self.value.class.has_duplicate_annotation?(self)
+          self.errors.add_to_base("This annotation already exists and is not allowed to be created again.")
+          return false
+        else
+          return true
+        end
       end
     end
   end
@@ -286,45 +296,56 @@ class Annotation < ActiveRecord::Base
     end
   end
   
-  def check_value_restrictions
-    attr_name = self.attribute_name.downcase
-    value_to_check = self.value.downcase
-    if Annotations::Config::value_restrictions.has_key?(attr_name)
-      options = Annotations::Config::value_restrictions[attr_name]
-      
-      case options[:in]
-        when Array
-          if options[:in].map{|s| s.downcase}.include?(value_to_check)
+  def check_content_restrictions
+    if ok_value_object_type?
+      attr_name = self.attribute_name.downcase
+      content_to_check = self.value_content
+      if Annotations::Config::content_restrictions.has_key?(attr_name)
+        options = Annotations::Config::content_restrictions[attr_name]
+        
+        case options[:in]
+          when Array
+            if content_to_check.is_a?(String)
+              if options[:in].map{|s| s.downcase}.include?(content_to_check.downcase)
+                return true
+              else
+                self.errors.add_to_base(options[:error_message])
+                return false
+              end
+            else
+              if options[:in].include?(content_to_check)
+                return true
+              else
+                self.errors.add_to_base(options[:error_message])
+                return false
+              end
+            end
+            
+          when Range
+            # Need to take into account that "a_string".to_i == 0
+            if content_to_check == "0"
+              if options[:in] === 0
+                return true
+              else
+                self.errors.add_to_base(options[:error_message])
+                return false
+              end
+            else
+              if options[:in] === content_to_check.to_i
+                return true
+              else
+                self.errors.add_to_base(options[:error_message])
+                return false
+              end
+            end
+            
+          else
             return true
-          else
-            self.errors.add_to_base(options[:error_message])
-            return false
-          end
-          
-        when Range
-          # Need to take into account that "a_string".to_i == 0
-          if value_to_check == "0"
-            if options[:in] === 0
-              return true
-            else
-              self.errors.add_to_base(options[:error_message])
-              return false
-            end
-          else
-            if options[:in] === value_to_check.to_i
-              return true
-            else
-              self.errors.add_to_base(options[:error_message])
-              return false
-            end
-          end
-          
-        else
-          return true
+        end
+      else
+        return true
       end
-    else
-      return true
-    end      
+    end    
   end
   
   # ===========

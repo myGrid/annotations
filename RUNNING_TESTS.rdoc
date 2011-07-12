@@ -18,3 +18,7 @@ To run the tests for this plugin:
 * In the root of the dummy Rails app, run:
 
   rake test:plugins PLUGIN=annotations
+
+* For more detailed back traces, run:
+
+  rake test:plugins PLUGIN=annotations BACKTRACE=blegga

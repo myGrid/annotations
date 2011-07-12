@@ -38,15 +38,17 @@ class ActsAsAnnotationSourceTest < ActiveSupport::TestCase
   def test_adding_of_annotation
     us = users(:jane)
     assert_equal 6, us.annotations_by.length
-    ann1 = us.annotations_by << Annotation.new(:attribute_id => AnnotationAttribute.find_or_create_by_name("tag").id,
-                                           :value => "test", 
-                                           :annotatable_type => "Book", 
-                                           :annotatable_id => 1)
-                                           
-    ann2 = us.annotations_by << Annotation.new(:attribute_name => "description",
-                                           :value => "test2", 
-                                           :annotatable_type => "Book", 
-                                           :annotatable_id => 2)
+    ann1 = Annotation.new(:attribute_id => AnnotationAttribute.find_or_create_by_name("tag").id,
+                          :annotatable_type => "Book", 
+                          :annotatable_id => 1)
+    ann1.value = "test"
+    us.annotations_by << ann1 
+
+    ann2 = Annotation.new(:attribute_name => "description",
+                          :annotatable_type => "Book", 
+                          :annotatable_id => 2)
+    ann2.value = "test2"
+    us.annotations_by << ann2 
                                            
     assert_not_nil(ann1)
     assert_not_nil(ann2)

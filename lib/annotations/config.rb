@@ -45,7 +45,7 @@ module Annotations
     #           duplicate annotations BUT limit the number of annotations (per attribute) per user.
     @@attribute_names_to_allow_duplicates = [ ]
     
-    # This allows you to restrict the value for annotations with a specific attribute name.
+    # This allows you to restrict the content of the values for annotations with a specific attribute name.
     #
     # Key/value pairs in the hash should follow the spec:
     # { attribute_name => { :in => array_or_range, :error_message => error_msg_to_show_if_value_not_allowed }
@@ -54,7 +54,7 @@ module Annotations
     #
     # NOTE (1): The attribute name(s) specified MUST all be in lowercase.
     # NOTE (2): values will be checked in a case insensitive manner.
-    @@value_restrictions = { }
+    @@content_restrictions = { }
 
     # This determines what template to use to generate the unique 'identifier' for new AnnotationAttribute objects.
     #
@@ -77,7 +77,7 @@ module Annotations
       @@user_model_name = "User"
       @@limits_per_source = { }
       @@attribute_names_to_allow_duplicates = [ ]
-      @@value_restrictions = { }
+      @@content_restrictions = { }
       @@default_attribute_identifier_template = "http://www.example.org/attribute#%s"
       @@attribute_name_transform_for_identifier = Proc.new { |name| name.to_s }
     end
@@ -92,7 +92,7 @@ module Annotations
       :user_model_name,
       :limits_per_source,
       :attribute_names_to_allow_duplicates,
-      :value_restrictions,
+      :content_restrictions,
       :default_attribute_identifier_template,
       :attribute_name_transform_for_identifier ].each do |sym|
       class_eval <<-EOS, __FILE__, __LINE__

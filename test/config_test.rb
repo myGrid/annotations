@@ -8,7 +8,7 @@ class ConfigTest < ActiveSupport::TestCase
     Annotations::Config.strip_text_rules.update({ "tag" => [ '"', ',' ], "comma_stripped" => ',', "regex_strip" => /\d/ })
     Annotations::Config.limits_per_source.update({ "rating" => 1 })
     Annotations::Config.attribute_names_to_allow_duplicates.concat([ "allow_duplicates_for_this" ])
-    Annotations::Config.value_restrictions.update({ "rating" => { :in => 1..5, :error_message => "Please provide a rating between 1 and 5" },
+    Annotations::Config.content_restrictions.update({ "rating" => { :in => 1..5, :error_message => "Please provide a rating between 1 and 5" },
                                                     "category" => { :in => [ "fruit", "nut", "fibre" ], :error_message => "Please select a valid category" } })
     Annotations::Config.default_attribute_identifier_template = "http://x.com/attribute#%s"
     Annotations::Config.attribute_name_transform_for_identifier = Proc.new { |name|
@@ -38,7 +38,7 @@ class ConfigTest < ActiveSupport::TestCase
                             :annotatable_id => 1)
     
     assert ann1.valid?
-    assert_equal "unique", ann1.value
+    assert_equal "unique", ann1.value_content
     
     # Should upcase
     
@@ -50,7 +50,7 @@ class ConfigTest < ActiveSupport::TestCase
                             :annotatable_id => 1)
     
     assert ann2.valid?
-    assert_equal "UNIQUE", ann2.value
+    assert_equal "UNIQUE", ann2.value_content
     
     # Should not do anything
     
@@ -62,7 +62,7 @@ class ConfigTest < ActiveSupport::TestCase
                             :annotatable_id => 1)
     
     assert ann3.valid?
-    assert_equal "UNIque", ann3.value
+    assert_equal "UNIque", ann3.value_content
   end
   
   def test_strip_text_rules
@@ -78,7 +78,7 @@ class ConfigTest < ActiveSupport::TestCase
                              :annotatable_id => 1)
     
     assert ann1.valid?
-    assert_equal "value", ann1.value
+    assert_equal "value", ann1.value_content
     
     # Strip 'comma_stripped'
     
@@ -90,7 +90,7 @@ class ConfigTest < ActiveSupport::TestCase
                             :annotatable_id => 1)
     
     assert ann2.valid?
-    assert_equal 'val"ue', ann2.value
+    assert_equal 'val"ue', ann2.value_content
     
     # Regexp strip
 
@@ -102,7 +102,7 @@ class ConfigTest < ActiveSupport::TestCase
                             :annotatable_id => 1)
     
     assert ann3.valid?
-    assert_equal 'v,al"uex', ann3.value
+    assert_equal 'v,al"uex', ann3.value_content
 
     # Don't strip!
     
@@ -114,7 +114,7 @@ class ConfigTest < ActiveSupport::TestCase
                             :annotatable_id => 1)
     
     assert ann4.valid?
-    assert_equal 'v,al"ue', ann4.value
+    assert_equal 'v,al"ue', ann4.value_content
   end
   
   def test_limits_per_source
@@ -123,12 +123,12 @@ class ConfigTest < ActiveSupport::TestCase
     bk1 = Book.create
     
     ann1 = bk1.annotations << Annotation.new(:attribute_name => "rating", 
-                                    :value => 4, 
+                                    :value => NumberValue.new(:number => 4), 
                                     :source_type => source.class.name, 
                                     :source_id => source.id)
     
     assert_not_nil ann1
-    assert_equal "4", bk1.annotations(true)[0].value
+    assert_equal 4, bk1.annotations(true)[0].value_content
     assert_equal 1, bk1.annotations(true).length
     
     ann2 = Annotation.new(:attribute_name => "rating", 
@@ -213,7 +213,7 @@ class ConfigTest < ActiveSupport::TestCase
     assert_equal 3, bk2.annotations(true).length
   end
   
-  def test_value_restrictions
+  def test_content_restrictions
     source1 = users(:john)
     source2 = users(:jane)
     

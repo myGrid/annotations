@@ -34,37 +34,16 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal groups(:classical_fans), annotations(:br_c202_tag_1).source
   end
   
+  def test_belongs_to_value_association
+    assert_equal TextValue.find(33), annotations(:br_c202_title_1).value
+    assert_equal TextValue.find(23), annotations(:br_author_1).value
+    assert_equal TextValue.find(19), annotations(:bh_tag_1).value
+    assert_equal NumberValue.find(1), annotations(:bh_length_1).value
+  end
+  
   def test_belongs_to_attribute_association
     assert_equal annotation_attributes(:aa_length), annotations(:bh_length_1).attribute
     assert_equal annotation_attributes(:aa_tag), annotations(:br_tag_1).attribute
-  end
-  
-  def test_find_annotatables_with_attribute_name_and_value_class_method
-    ats1 = Annotation.find_annotatables_with_attribute_name_and_value("complexity", "O(x^2)")
-    assert_equal 1, ats1.length
-    assert ats1[0].class != Annotation
-    
-    ats2 = Annotation.find_annotatables_with_attribute_name_and_value("TAG", "PROGRAMMING")
-    assert_equal 1, ats2.length
-    assert ats2[0].class != Annotation
-    
-    assert_equal 0, Annotation.find_annotatables_with_attribute_name_and_value("asfrertewt", "JBuoGU IT I\tIPyI tRyyI tpIY T YFy fY f yF").length
-  end
-  
-  def test_find_annotatables_with_attribute_names_and_values_class_method
-    ats1 = Annotation.find_annotatables_with_attribute_names_and_values(["tag" ], [ "programming", "complex", "Long" ])
-    assert_equal 3, ats1.length
-    assert ats1[0].class != Annotation
-    
-    ats2 = Annotation.find_annotatables_with_attribute_names_and_values(["rating", "complexity" ], [ "O(x^2)" ])
-    assert_equal 1, ats2.length
-    
-    ats3 = Annotation.find_annotatables_with_attribute_names_and_values(["title", "LENGTH" ], [ "345", "Ruby Hashes", "does_not_exist_but_still_counts" ])
-    assert_equal 2, ats3.length
-    
-    assert_equal 0, Annotation.find_annotatables_with_attribute_names_and_values([ "asfrertewt" ], [ "JBuoGU IT I\tIPyI tRyyI tpIY T YFy fY f yF" ]).length
-    
-    assert_equal 0, Annotation.find_annotatables_with_attribute_names_and_values([ "asfrertewt", "askiki" ], [ "JBuoGU IT I\tIPyI tRyyI tpIY T YFy fY f yF", "yfyfyyfyfyff" ]).length
   end
   
   def test_by_source_named_scope_finder
@@ -100,69 +79,123 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal "title", annotations(:bh_c10_title_1).attribute_name.downcase
   end
   
+  def test_attribute_name_setter
+    attr_name = "Testing attribute name setter"
+    
+    ann = Annotation.new
+    ann.attribute_name = attr_name 
+    
+    attr = AnnotationAttribute.find_by_name(attr_name)
+    
+    assert_equal ann.attribute, attr
+  end
+  
+  def test_value_setter
+    value1 = "Hellow orld"
+    ann1 = Annotation.new
+    ann1.value = value1
+    assert_not_nil ann1.value
+    assert_kind_of TextValue, ann1.value
+    
+    value2 = TextValue.new :text => "Hellow cruel orld"
+    ann2 = Annotation.new
+    ann2.value = value2
+    assert_not_nil ann2.value
+    assert_kind_of TextValue, ann2.value
+    
+    value3 = NumberValue.new :number => 42
+    ann3 = Annotation.new
+    ann3.value = value3
+    assert_not_nil ann3.value
+    assert_kind_of NumberValue, ann3.value
+  end
+  
   def test_annotation_create
     source = users(:john)
     
-    ann = Annotation.new(:attribute_name => "tag", 
-                         :value => "hot", 
+    ann = Annotation.new(:attribute_name => "tag",
+                         :value => "hot",
                          :source_type => source.class.name, 
                          :source_id => source.id,
                          :annotatable_type => "Book",
                          :annotatable_id => 1)
     
     assert ann.valid?
-    
     assert ann.save
     
-    assert_equal "User", ann.source_type
+    ann_again = Annotation.find_by_id(ann.id)
+    
+    assert_not_nil ann_again
+    assert_equal "User", ann_again.source_type
+    assert_equal "TextValue", ann_again.value_type
+    assert_not_nil ann_again.value
   end
   
   def test_cannot_create_annotation_with_invalid_annotatable
     source = users(:john)
     
     ann1 = Annotation.new(:attribute_name => "tag", 
-                          :value => "hot", 
+                          :value => "hot",
                           :source_type => source.class.name, 
                           :source_id => source.id,
                           :annotatable_type => "Book",
                           :annotatable_id => 100)
     
-    assert ann1.invalid?
+    assert ann1.invalid?    # TODO: check for the specific error, not just that it's invalid!
     assert !ann1.save
     
-    ann2 = Annotation.new(:attribute_name => "tag", 
-                          :value => "hot", 
+    ann2 = Annotation.new(:attribute_name => "tag",
+                          :value => "hot",
                           :source_type => source.class.name, 
                           :source_id => source.id,
                           :annotatable_type => "Whale",
                           :annotatable_id => 1)
-    
-    assert ann2.invalid?
+        
+    assert ann2.invalid?    # TODO: check for the specific error, not just that it's invalid!
     assert !ann2.save
   end
   
   def test_cannot_create_annotation_with_invalid_source
     bk = books(:h)
     
-    ann1 = Annotation.new(:attribute_name => "tag", 
-                          :value => "hot", 
+    ann1 = Annotation.new(:attribute_name => "tag",
+                          :value => "hot",
                           :source_type => "User", 
                           :source_id => 100,
                           :annotatable_type => bk.class.name,
                           :annotatable_id => bk.id)
-    
-    assert ann1.invalid?
+        
+    assert ann1.invalid?    # TODO: check for the specific error, not just that it's invalid!
     assert !ann1.save
     
-    ann2 = Annotation.new(:attribute_name => "tag", 
-                          :value => "hot", 
+    ann2 = Annotation.new(:attribute_name => "tag",
+                          :value => "hot",
                           :source_type => "Monkey", 
                           :source_id => 1,
                           :annotatable_type => bk.class.name,
                           :annotatable_id => bk.id)
     
-    assert ann2.invalid?
+    assert ann2.invalid?    # TODO: check for the specific error, not just that it's invalid!
     assert !ann2.save
+  end
+  
+  def test_cannot_create_annotation_with_invalid_value
+    bk = books(:h)
+    source = users(:john)
+    
+    ann = Annotation.new(:attribute_name => "tag")
+    ann.annotatable = bk
+    ann.source = source
+    ann.value = nil
+    
+    assert ann.invalid?    # TODO: check for the specific error, not just that it's invalid!
+    assert !ann.save
+    
+    ann.value = bk
+    
+    assert ann.invalid?    # TODO: check for the specific error, not just that it's invalid!
+    assert !ann.save
+    
   end
   
 end
