@@ -6,6 +6,13 @@ Copyright::         	(c) 2008-2010, the University of Manchester and the Europea
 License::           	BSD
 Version::           	0.1.1
 
+* IMPORTANT *:
+
+In v0.2.0 this plugin has been modified substantially to support polymorphic annotation values rather than just strings.
+
+This README will be updated in due course to reflect these changes, once everything is stable and integrated into the BioCatalogue codebase.
+
+
 == Overview
 
 This plugin allows arbitrary metadata to be stored and retrieved for any model object in your Ruby on Rails (v2.2+) application. This metadata is in the form of attribute/value data pairs that, together with provenance information, make up 'annotations'. These annotations are "attached" to a model object in your application. 
