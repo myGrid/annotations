@@ -1,5 +1,9 @@
 = Changelog
 
+== 0.3.0
+* +acts_as_annotatable+ now requires you to specify an option - +:name_field+ - on the model that is becoming an annotatable.
+* +acts_as_annotatable+ now exposes an +is_annotatable+ attribute to allow you to check if a model can act as an annotatable. 
+
 == 0.2.1
 * Updated the routes to allow +requirements+ to be passed in.
 

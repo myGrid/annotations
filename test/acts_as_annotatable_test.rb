@@ -23,6 +23,14 @@ class ActsAsAnnotatableTest < ActiveSupport::TestCase
     assert_equal 2, Chapter.find_annotations_by("Group", groups(:classical_fans)).length
   end
   
+  def test_annotatable_name_field_class_attribute
+    h = books(:h)
+    
+    hs = Book.find(:all, :conditions => { Book.annotatable_name_field.to_sym => h.title })
+    
+    assert !hs.empty?
+  end
+  
   def test_annotatable_name_instance_method
     assert_equal "Learning Ruby in 2 Seconds", books(:r).annotatable_name
     assert_equal "Hashing It Up", chapters(:br_c2).annotatable_name

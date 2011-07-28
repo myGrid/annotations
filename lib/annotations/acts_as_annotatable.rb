@@ -8,7 +8,15 @@ module Annotations
       end
 
       module ClassMethods
-        def acts_as_annotatable
+        def acts_as_annotatable(options)
+          cattr_accessor :annotatable_name_field, :is_annotatable
+          
+          if options[:name_field].blank?
+            raise ArgumentError.new("Must specify the :name_field option that will be used as the field for the name")
+          end
+          
+          self.annotatable_name_field = options[:name_field] 
+          
           has_many :annotations, 
                    :as => :annotatable, 
                    :dependent => :destroy, 
@@ -16,6 +24,8 @@ module Annotations
                    
           __send__ :extend, SingletonMethods
           __send__ :include, InstanceMethods
+          
+          self.is_annotatable = true
         end
       end
       
@@ -49,13 +59,9 @@ module Annotations
       # This module contains instance methods
       module InstanceMethods
         
-        # Provides a default implementation to get the display name for 
-        # an annotatable object, that can be overrided.
+        # Gets the name of the annotatable object
         def annotatable_name
-          %w{ preferred_name display_name title name }.each do |w|
-            return eval("self.#{w}") if self.respond_to?(w)
-          end
-          return "#{self.class.name}_#{self.id}"
+          self.send(self.class.annotatable_name_field)
         end
         
         # Helper method to get latest annotations
