@@ -1,6 +1,9 @@
 = Changelog
 
-== 0.2
+== 0.2.1
+* Updated the routes to allow +requirements+ to be passed in.
+
+== 0.2.0
 *Main change*: 
 Annotation values are now polymorphic rather than just plain strings. 
 Some basic +act_as_annotation_value+ models have been introduced for this. 
