@@ -6,7 +6,7 @@ Copyright::         	(c) 2008-2010, the University of Manchester and the Europea
 License::           	BSD
 Version::           	0.1.1
 
-* IMPORTANT *:
+== IMPORTANT
 
 In v0.2.0 this plugin has been modified substantially to support polymorphic annotation values rather than just strings.
 
