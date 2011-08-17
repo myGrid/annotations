@@ -20,6 +20,8 @@ module Annotations
     # NOTE (4): this makes some big assumptions about your current set of
     # annotations. Please look through to make sure the logic applies.
     def self.migrate_annotations_to_v3
+      Annotation.reset_column_information
+      
       Annotation.record_timestamps = false
       
       Annotation.all.each do |ann|
