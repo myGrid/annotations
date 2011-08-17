@@ -110,7 +110,7 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_kind_of NumberValue, ann3.value
   end
   
-  def test_annotation_create
+  def test_annotation_create_with_implicit_value
     source = users(:john)
     
     ann = Annotation.new(:attribute_name => "tag",
@@ -129,6 +129,31 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal "User", ann_again.source_type
     assert_equal "TextValue", ann_again.value_type
     assert_not_nil ann_again.value
+    assert_equal "hot", ann_again.value_content
+  end
+  
+  def test_annotation_create_with_explicit_value
+    source = users(:john)
+    
+    val = NumberValue.new :number => 0
+    
+    ann = Annotation.new(:attribute_name => "rating",
+                         :value => val,
+                         :source_type => source.class.name, 
+                         :source_id => source.id,
+                         :annotatable_type => "Book",
+                         :annotatable_id => 1)
+    
+    assert ann.valid?
+    assert ann.save
+    
+    ann_again = Annotation.find_by_id(ann.id)
+    
+    assert_not_nil ann_again
+    assert_equal "User", ann_again.source_type
+    assert_equal "NumberValue", ann_again.value_type
+    assert_not_nil ann_again.value
+    assert_equal 0, ann_again.value_content
   end
   
   def test_cannot_create_annotation_with_invalid_annotatable
