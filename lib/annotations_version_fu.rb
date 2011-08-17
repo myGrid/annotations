@@ -75,8 +75,7 @@ module AnnotationsVersionFu
     
     def reload_versioned_columns_info
       if self.versioned_class.table_exists?
-        # Finally setup which columns to version
-        self.versioned_columns =  versioned_class.new.attributes.keys - 
+        self.versioned_columns = versioned_class.new.attributes.keys - 
           [versioned_class.primary_key, versioned_foreign_key, version_column, 'created_at', 'updated_at']
       else
         ActiveRecord::Base.logger.warn "Version Table not found"
