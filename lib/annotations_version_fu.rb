@@ -74,6 +74,8 @@ module AnnotationsVersionFu
     end
     
     def reload_versioned_columns_info
+      self.reset_column_information
+      self.versioned_class.reset_column_information
       if self.versioned_class.table_exists?
         self.versioned_columns = versioned_class.new.attributes.keys - 
           [versioned_class.primary_key, versioned_foreign_key, version_column, 'created_at', 'updated_at']
