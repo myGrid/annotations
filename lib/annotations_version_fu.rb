@@ -70,6 +70,10 @@ module AnnotationsVersionFu
       # Block extension
       versioned_class.class_eval &block if block_given?
       
+      reload_versioned_columns_info
+    end
+    
+    def reload_versioned_columns_info
       if self.versioned_class.table_exists?
         # Finally setup which columns to version
         self.versioned_columns =  versioned_class.new.attributes.keys - 

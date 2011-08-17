@@ -220,7 +220,9 @@ class AnnotationTest < ActiveSupport::TestCase
     
     assert ann.invalid?    # TODO: check for the specific error, not just that it's invalid!
     assert !ann.save
-    
   end
-  
+
+  def test_reload_versioned_columns
+    assert Annotation.reload_versioned_columns_info
+  end  
 end
