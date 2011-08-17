@@ -35,7 +35,7 @@ module Annotations
             
             # Build up the TextValue from the versions
             ann.versions do |version|
-              val.content = version.old_value
+              val.text = version.old_value
               val.version_creator_id = version.version_creator_id
               val.created_at = version.created_at unless val.created_at
               val.updated_at = version.updated_at
