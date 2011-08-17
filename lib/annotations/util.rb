@@ -34,7 +34,7 @@ module Annotations
             # nothing else!
             
             # Build up the TextValue from the versions
-            ann.versions do |version|
+            ann.versions.each do |version|
               val.text = version.old_value
               val.version_creator_id = version.version_creator_id
               val.created_at = version.created_at unless val.created_at
