@@ -1,5 +1,9 @@
 = Changelog
 
+== 0.3.1
+* Minor bugfixes
+* +annotations_version_fu+ nows allows reloading of the versioned columns (needed if doing something during a migration).
+
 == 0.3.0
 * +acts_as_annotatable+ now requires you to specify an option - +:name_field+ - on the model that is becoming an annotatable.
 * +acts_as_annotatable+ now exposes an +is_annotatable+ attribute to allow you to check if a model can act as an annotatable. 
