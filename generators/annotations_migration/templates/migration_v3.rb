@@ -55,6 +55,7 @@ class AnnotationsMigrationV3 < ActiveRecord::Migration
     # TODO: IMPORTANT: please check the comments and logic in
     # this util method to see if it is what you want.
     # If you need to change the behaviour, redefine it in your app.
+    Annotation.reset_column_information
     Annotations::Util::migrate_annotations_to_v3
     
     change_table :annotation_value_seeds do |t|
