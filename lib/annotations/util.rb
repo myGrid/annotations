@@ -53,7 +53,7 @@ module Annotations
             # Only keep second to last version,
             # deleting others, and resetting version
             # numbers.
-            ann.versions(true) do |version|
+            ann.versions(true).each do |version|
               if version == ann.versions[-2]
                 # The one we want to keep
                 version.version = 1
