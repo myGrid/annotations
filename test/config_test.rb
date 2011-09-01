@@ -2,15 +2,23 @@ require File.dirname(__FILE__) + '/test_helper.rb'
 
 class ConfigTest < ActiveSupport::TestCase
   def setup
-    Annotations::Config.reset
-    Annotations::Config.attribute_names_for_values_to_be_downcased.concat([ "downcased_thing" ])
-    Annotations::Config.attribute_names_for_values_to_be_upcased.concat([ "upcased_thing" ])
-    Annotations::Config.strip_text_rules.update({ "tag" => [ '"', ',' ], "comma_stripped" => ',', "regex_strip" => /\d/ })
-    Annotations::Config.limits_per_source.update({ "rating" => 1 })
-    Annotations::Config.attribute_names_to_allow_duplicates.concat([ "allow_duplicates_for_this" ])
-    Annotations::Config.content_restrictions.update({ "rating" => { :in => 1..5, :error_message => "Please provide a rating between 1 and 5" },
-                                                    "category" => { :in => [ "fruit", "nut", "fibre" ], :error_message => "Please select a valid category" } })
-    Annotations::Config.default_attribute_identifier_template = "http://x.com/attribute#%s"
+    Annotations::Config::reset
+    
+    Annotations::Config::attribute_names_for_values_to_be_downcased.concat([ "downcased_thing" ])
+    
+    Annotations::Config::attribute_names_for_values_to_be_upcased.concat([ "upcased_thing" ])
+    
+    Annotations::Config::strip_text_rules.update({ "tag" => [ '"', ',' ], "comma_stripped" => ',', "regex_strip" => /\d/ })
+    
+    Annotations::Config::limits_per_source.update({ "rating" => 1 })
+    
+    Annotations::Config::attribute_names_to_allow_duplicates.concat([ "allow_duplicates_for_this" ])
+    
+    Annotations::Config::content_restrictions.update({ "rating" => { :in => 1..5, :error_message => "Please provide a rating between 1 and 5" },
+                                                       "category" => { :in => [ "fruit", "nut", "fibre" ], :error_message => "Please select a valid category" } })
+    
+    Annotations::Config::default_attribute_identifier_template = "http://x.com/attribute#%s"
+    
     Annotations::Config.attribute_name_transform_for_identifier = Proc.new { |name|
       regex = /\.|-|:/
       if name.match(regex)
@@ -20,7 +28,7 @@ class ConfigTest < ActiveSupport::TestCase
       end
     }
     
-    Annotations::Config.value_factories_for_attributes["tag"] = Proc.new { |v|
+    Annotations::Config.value_factories["tag"] = Proc.new { |v|
       case v
         when Tag
           v
@@ -30,6 +38,7 @@ class ConfigTest < ActiveSupport::TestCase
           nil
       end
     }
+    
   end
   
   def teardown
@@ -315,7 +324,7 @@ class ConfigTest < ActiveSupport::TestCase
     assert_equal "http://x.com/attribute#helloWorldAttributeZero", attrib4.identifier
   end
   
-  def test_value_factories_for_attributes
+  def test_value_factories
     source = users(:john)
         
     ann1 = Annotation.create(:attribute_name => "Tag", 

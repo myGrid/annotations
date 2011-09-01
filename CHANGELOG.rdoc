@@ -1,9 +1,9 @@
 = Changelog
 
 == 0.4.0 (unreleased)
-* New config option: support for value generation factories (based on attribute name). Use the option: +Annotations::Config.value_factories_for_attributes+
+* New config option: support for value object generation factories (based on attribute name). Use the option: +Annotations::Config.value_factories+
     
-    Annotations::Config.value_factories_for_attributes["tag"] = Proc.new { |v|
+    Annotations::Config.value_factories["tag"] = Proc.new { |v|
       case v
         when Tag
           v

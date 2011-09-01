@@ -73,7 +73,7 @@ module Annotations
     # This stores the factory Procs that are used to generate the value objects
     # for annotations, based on the attribute name.
     #
-    # - Keys should be attribute names (as Strings).
+    # - Keys should be attribute names (as Strings, in lowercase).
     # - Values should either be a Proc that takes in one argument - the raw value object, that is then used 
     # to output the actual value to be stored. IMPORTANT: the Procs must be exhibit consistent data behaviour. 
     # I.e. should be able to run them over and over again without causing data inconsistencies or harmful side effects.
@@ -93,7 +93,7 @@ module Annotations
       @@content_restrictions = { }
       @@default_attribute_identifier_template = "http://www.example.org/attribute#%s"
       @@attribute_name_transform_for_identifier = Proc.new { |name| name.to_s }
-      @@value_factories_for_attributes = { }
+      @@value_factories = { }
     end
     
     reset
@@ -109,7 +109,7 @@ module Annotations
       :content_restrictions,
       :default_attribute_identifier_template,
       :attribute_name_transform_for_identifier,
-      :value_factories_for_attributes ].each do |sym|
+      :value_factories ].each do |sym|
       class_eval <<-EOS, __FILE__, __LINE__
         def self.#{sym}
           if defined?(#{sym.to_s.upcase})

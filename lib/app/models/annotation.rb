@@ -242,8 +242,8 @@ class Annotation < ActiveRecord::Base
   def try_use_value_factory(value_in)
     attr_name = self.attribute_name.downcase
     
-    if Annotations::Config::value_factories_for_attributes.has_key?(attr_name)
-      return Annotations::Config::value_factories_for_attributes[attr_name].call(value_in)
+    if Annotations::Config::value_factories.has_key?(attr_name)
+      return Annotations::Config::value_factories[attr_name].call(value_in)
     else
       return value_in
     end
