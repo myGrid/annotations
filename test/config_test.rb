@@ -19,7 +19,7 @@ class ConfigTest < ActiveSupport::TestCase
     
     Annotations::Config::default_attribute_identifier_template = "http://x.com/attribute#%s"
     
-    Annotations::Config.attribute_name_transform_for_identifier = Proc.new { |name|
+    Annotations::Config::attribute_name_transform_for_identifier = Proc.new { |name|
       regex = /\.|-|:/
       if name.match(regex)
         name.gsub(regex, ' ').titleize.gsub(' ', '').camelize(:lower)
@@ -28,16 +28,16 @@ class ConfigTest < ActiveSupport::TestCase
       end
     }
     
-    Annotations::Config.value_factories["tag"] = Proc.new { |v|
+    Annotations::Config::value_factories["tag"] = Proc.new { |v|
       case v
-        when Tag
-          v
         when String, Symbol
           Tag.find_or_create_by_name(v.to_s)
         else
-          nil
+          v
       end
     }
+    
+    Annotations::Config::valid_value_types["tag"] = "Tag"
     
   end
   
@@ -346,7 +346,38 @@ class ConfigTest < ActiveSupport::TestCase
     
     ann2.value = Tag.find_or_create_by_name("hello")
     
-    assert ann2.save!
+    assert ann2.save
     assert_equal 'hello', ann2.value_content
+  end
+  
+  def test_valid_value_types
+    source = users(:john)
+    
+    # Test valid one
+    
+    ann1 = Annotation.new(:attribute_name => "Tag", 
+                          :value => 'smashing', 
+                          :source_type => source.class.name, 
+                          :source_id => source.id,
+                          :annotatable_type => "Book",
+                          :annotatable_id => 1)
+    
+    assert ann1.valid?
+    assert ann1.save
+    assert_kind_of Tag, ann1.value
+    
+    # Test invalid one
+    
+    ann2 = Annotation.new(:attribute_name => "Tag", 
+                          :value => TextValue.new(:text => 'smashing'), 
+                          :source_type => source.class.name, 
+                          :source_id => source.id,
+                          :annotatable_type => "Book",
+                          :annotatable_id => 1)
+    
+    
+    assert ann2.invalid?
+    assert !ann2.save
+    assert ann2.errors.full_messages.include?("Annotation value is of an invalid type for attribute name: 'tag'. Provided value is a TextValue.")
   end
 end

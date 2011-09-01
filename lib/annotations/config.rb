@@ -83,6 +83,17 @@ module Annotations
     # NOTE (2): The attribute name(s) specified MUST all be in lowercase.
     @@value_factories_for_attributes = { }
     
+    # This determines the valid value types that are allowed for certain attribute names.
+    #
+    # - Keys should be attribute names (as Strings, in lowercase).
+    # - Values should be an Array of Strings, or single String, of valid class names for the value object type.
+    #
+    # NOTE (1): It is possible to use the above +value_factories_for_attributes+ option to achieve
+    # similar behaviour. However, this config option allows you to state explicitly what types are
+    # allowed as value objects.
+    # NOTE (2): The attribute name(s) specified MUST all be in lowercase.
+    @@valid_value_types = { }
+    
     def self.reset
       @@attribute_names_for_values_to_be_downcased = [ ]
       @@attribute_names_for_values_to_be_upcased = [ ]
@@ -94,6 +105,7 @@ module Annotations
       @@default_attribute_identifier_template = "http://www.example.org/attribute#%s"
       @@attribute_name_transform_for_identifier = Proc.new { |name| name.to_s }
       @@value_factories = { }
+      @@valid_value_types = { }
     end
     
     reset
@@ -109,7 +121,8 @@ module Annotations
       :content_restrictions,
       :default_attribute_identifier_template,
       :attribute_name_transform_for_identifier,
-      :value_factories ].each do |sym|
+      :value_factories,
+      :valid_value_types ].each do |sym|
       class_eval <<-EOS, __FILE__, __LINE__
         def self.#{sym}
           if defined?(#{sym.to_s.upcase})

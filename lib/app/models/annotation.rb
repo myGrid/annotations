@@ -272,17 +272,23 @@ class Annotation < ActiveRecord::Base
   end
   
   def check_value
+    ok = true
     if self.value.nil?
       self.errors.add(:value, "object must be provided")
-      return false
+      ok = false
+    elsif !ok_value_object_type?
+      self.errors.add(:value, "must be a valid annotation value object")
+      ok = false
     else
-      if ok_value_object_type?
-        return true
-      else
-        self.errors.add(:value, "must be a valid annotation value object")
-        return false
+      attr_name = self.attribute_name.downcase
+      if Annotations::Config::valid_value_types.has_key?(attr_name) &&
+          !([ Annotations::Config::valid_value_types[attr_name] ].flatten.include?(self.value.class.name))
+        self.errors.add_to_base("Annotation value is of an invalid type for attribute name: '#{attr_name}'. Provided value is a #{self.value.class.name}.")
+        ok = false
       end
     end
+    
+    return ok
   end
   
   # This method checks whether duplicates are allowed for this particular annotation type (ie: 

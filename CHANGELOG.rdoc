@@ -1,23 +1,22 @@
 = Changelog
 
 == 0.4.0 (unreleased)
-* New config option: support for value object generation factories (based on attribute name). Use the option: +Annotations::Config.value_factories+
-    
+* New config option: +Annotations::Config.value_factories+ - support for value object generation factories per attribute name.
+Example:    
     Annotations::Config.value_factories["tag"] = Proc.new { |v|
       case v
-        when Tag
-          v
         when String, Symbol
           Tag.find_or_create_by_name(v.to_s)
         else
-          nil
+          v
       end
     }
-    
 IMPORTANT: don't use explicit +return+s in your Proc otherwise it will cause the returning method to exit too!
-
 * The process of generating/setting the annotation's actual value object has been changed to "lazy generate" the actual +value+ object of the annotation. This is now done before validation. NOTE: this still allows +Annotation#value+ (which has been overridden) to be set at any time, but the actual setting of the value association at the ActiveRecord level now happens later.
 * The +process_value_adjustments+ code in the +Annotation+ model now happens BEFORE setting the value association. This prevents the value object from being modified after it's been set. NOTE: this does also mean that it will only run when provided with a String or Symbol.
+* New config option: +Annotations::Config.valid_value_types+ - support for validation checks based on the class of the value object.
+Example:
+    Annotations::Config::valid_value_types["tag"] = "Tag"
 
 == 0.3.1
 * Minor bugfixes
