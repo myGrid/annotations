@@ -19,6 +19,17 @@ class ConfigTest < ActiveSupport::TestCase
         name.camelize(:lower)
       end
     }
+    
+    Annotations::Config.value_factories_for_attributes["tag"] = Proc.new { |v|
+      case v
+        when Tag
+          v
+        when String, Symbol
+          Tag.find_or_create_by_name(v.to_s)
+        else
+          nil
+      end
+    }
   end
   
   def teardown
@@ -122,12 +133,12 @@ class ConfigTest < ActiveSupport::TestCase
     
     bk1 = Book.create
     
-    ann1 = bk1.annotations << Annotation.new(:attribute_name => "rating", 
+    anns = bk1.annotations << Annotation.new(:attribute_name => "rating", 
                                     :value => NumberValue.new(:number => 4), 
                                     :source_type => source.class.name, 
                                     :source_id => source.id)
     
-    assert_not_nil ann1
+    assert anns.length > 0
     assert_equal 4, bk1.annotations(true)[0].value_content
     assert_equal 1, bk1.annotations(true).length
     
@@ -302,5 +313,31 @@ class ConfigTest < ActiveSupport::TestCase
     attrib4 = AnnotationAttribute.create(:name => "hello_world-attribute:zero")
     assert attrib4.valid?
     assert_equal "http://x.com/attribute#helloWorldAttributeZero", attrib4.identifier
+  end
+  
+  def test_value_factories_for_attributes
+    source = users(:john)
+        
+    ann1 = Annotation.create(:attribute_name => "Tag", 
+                             :value => 'alignment', 
+                             :source_type => source.class.name, 
+                             :source_id => source.id,
+                             :annotatable_type => "Book",
+                             :annotatable_id => 1)
+    
+    assert ann1.valid?
+    assert_kind_of Tag, ann1.value
+    assert_equal "alignment", ann1.value_content
+    
+    ann2 = Annotation.new(:attribute_name => "tag", 
+                          :source_type => source.class.name, 
+                          :source_id => source.id,
+                          :annotatable_type => "Book",
+                          :annotatable_id => 1)
+    
+    ann2.value = Tag.find_or_create_by_name("hello")
+    
+    assert ann2.save!
+    assert_equal 'hello', ann2.value_content
   end
 end

@@ -22,3 +22,7 @@ To run the tests for this plugin:
 * For more detailed back traces, run:
 
   rake test:plugins PLUGIN=annotations BACKTRACE=blegga
+  
+* To run a specific test file, run e.g.:
+
+  rake test:plugins PLUGIN=annotations BACKTRACE=blegga TEST=vendor/plugins/annotations/test/config_test.rb

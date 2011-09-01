@@ -90,26 +90,6 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal ann.attribute, attr
   end
   
-  def test_value_setter
-    value1 = "Hellow orld"
-    ann1 = Annotation.new
-    ann1.value = value1
-    assert_not_nil ann1.value
-    assert_kind_of TextValue, ann1.value
-    
-    value2 = TextValue.new :text => "Hellow cruel orld"
-    ann2 = Annotation.new
-    ann2.value = value2
-    assert_not_nil ann2.value
-    assert_kind_of TextValue, ann2.value
-    
-    value3 = NumberValue.new :number => 42
-    ann3 = Annotation.new
-    ann3.value = value3
-    assert_not_nil ann3.value
-    assert_kind_of NumberValue, ann3.value
-  end
-  
   def test_annotation_create_with_implicit_value
     source = users(:john)
     
