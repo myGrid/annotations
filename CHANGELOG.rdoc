@@ -1,5 +1,8 @@
 = Changelog
 
+== 0.4.0 (unreleased)
+* 
+
 == 0.3.1
 * Minor bugfixes
 * +annotations_version_fu+ nows allows reloading of the versioned columns (needed if doing something during a migration).
