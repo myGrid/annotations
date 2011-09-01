@@ -1,6 +1,6 @@
 = Changelog
 
-== 0.4.0 (unreleased)
+== 0.4.0
 * New config option: +Annotations::Config.value_factories+ - support for value object generation factories per attribute name.
 Example:    
     Annotations::Config.value_factories["tag"] = Proc.new { |v|
