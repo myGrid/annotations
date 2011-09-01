@@ -16,7 +16,7 @@ module Annotations
     #
     # e.g: { "tag" => [ '"', ','] } or { "tag" => '"' }
     # 
-    # NOTE: The attribute name(s) specified MUST all be in lowercase.  
+    # NOTE: The attribute name(s) specified MUST all be in lowercase. 
     @@strip_text_rules = { }
     
     # This allows you to specify a different model name for users in the system (if different from the default: "User").
@@ -78,8 +78,9 @@ module Annotations
     # to output the actual value to be stored. IMPORTANT: the Procs must be exhibit consistent data behaviour. 
     # I.e. should be able to run them over and over again without causing data inconsistencies or harmful side effects.
     #
-    # NOTE: this is run BEFORE the default value generation logic in the +Annotation+ model.
+    # NOTE (1): this is run BEFORE the default value generation logic in the +Annotation+ model.
     # The default value generation logic will still run after the Proc.
+    # NOTE (2): The attribute name(s) specified MUST all be in lowercase.
     @@value_factories_for_attributes = { }
     
     def self.reset
