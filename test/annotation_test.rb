@@ -46,6 +46,11 @@ class AnnotationTest < ActiveSupport::TestCase
     assert_equal annotation_attributes(:aa_tag), annotations(:br_tag_1).attribute
   end
   
+  def test_include_values_named_scope
+    assert_equal 20, Annotation.include_values.length
+    assert_not_nil Annotation.include_values.find(annotations(:bh_title_1).id)
+  end
+  
   def test_by_source_named_scope_finder
     assert_equal 7, Annotation.by_source('User', users(:john).id).length
     assert_equal 6, Annotation.by_source('User', users(:jane).id).length

@@ -73,6 +73,12 @@ class Annotation < ActiveRecord::Base
   
   # ========================
   
+  # Named scope to allow you to include the value records too.
+  # Use this to *potentially* improve performance.
+  named_scope :include_values, lambda {
+    { :include => [ :value ] }
+  }
+  
   # Finder to get all annotations by a given source.
   named_scope :by_source, lambda { |source_type, source_id| 
     { :conditions => { :source_type => source_type, 

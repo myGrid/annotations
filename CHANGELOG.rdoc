@@ -1,7 +1,7 @@
 = Changelog
 
 == 0.4.1
-* 
+* Add +Annotation::include_values+ as a named scope that can be used to potentially improve performance.
 
 == 0.4.0
 * New config option: +Annotations::Config.value_factories+ - support for value object generation factories per attribute name.
