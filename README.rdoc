@@ -10,9 +10,6 @@ Version::           	0.4.1
 
 In v0.2.0+ this plugin has been modified substantially to support polymorphic annotation values rather than just strings.
 
-This README will be updated in due course to reflect these changes, once everything is stable and integrated into the BioCatalogue codebase.
-
-
 == Overview
 
 This plugin allows arbitrary metadata and relationships to be stored and retrieved, in the form of *Annotations* for any model objects in your Ruby on Rails (v2.2+) application. 
