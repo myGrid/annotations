@@ -79,6 +79,14 @@ module Annotations
       
       # This module contains instance methods
       module InstanceMethods
+
+        #The total number of annotations that match one or more attribute names.
+        def annotation_count attributes
+          attributes = Array(attributes)
+          attributes.reduce(0) do |sum,attr|
+            sum + annotations.with_attribute_name(attr).count
+          end
+        end
         
         # The actual content of the annotation value
         def ann_content
