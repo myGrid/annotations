@@ -8,8 +8,7 @@ Add the following line in the Gemfile:
     
 == Setup
 Please read the setup of the Annotations Plugin.
-The only differences are the loadpaths of some dependencies
-E.g.
+The only differences are the loadpaths of some dependencies. For example:
 
 * Annotations Gem uses:
 
