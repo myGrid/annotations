@@ -1,5 +1,5 @@
 Gem::Specification.new do |s|
-  s.name        = 'annotations'
+  s.name        = 'my_annotations'
   s.version     = '0.5.0'
   s.date        = '2013-05-02'
   s.summary     = "This gem allows arbitrary metadata and relationships to be stored and retrieved, in the form of Annotations for any model objects in your Ruby on Rails (v2.2+) application."
