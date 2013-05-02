@@ -1,4 +1,4 @@
-require File.join(File.dirname(__FILE__), "lib", "annotations")
+require 'annotations.rb'
 
 # FIX for engines model reloading issue in development mode
 if ENV['RAILS_ENV'] != 'production'

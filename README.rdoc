@@ -1,3 +1,24 @@
+This is the Gem version of Annotations plugin
+
+= Annotations Gem
+== Install
+Add the following line in the Gemfile:
+
+    gem 'annotations', :git => "git://github.com/quyen/annotations.git" 
+    
+== Setup
+Please read the setup of the Annotations Plugin.
+The only differences are the loadpaths of some dependencies. For example:
+
+* Annotations Gem uses:
+
+  require_dependency File.join(Gem.loaded_specs['annotations'].full_gem_path,'lib','app','controllers','application_controller')
+  
+* Annotations Plugin uses:
+  
+  require_dependency File.join(Rails.root, 'vendor', 'plugins', 'annotations', 'lib', 'app', 'controllers', 'application_controller')
+
+
 = Annotations Plugin (for Ruby on Rails applications)
 
 
