@@ -1,4 +1,4 @@
-require 'annotations.rb'
+require 'my_annotations.rb'
 
 # FIX for engines model reloading issue in development mode
 if ENV['RAILS_ENV'] != 'production'
