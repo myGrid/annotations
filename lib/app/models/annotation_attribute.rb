@@ -10,6 +10,8 @@ class AnnotationAttribute < ActiveRecord::Base
                           
   has_many :annotations,
            :foreign_key => "attribute_id"
+           
+  before_validation :set_identifier         
 
   # If the identifier is not set, generate it before validation takes place.
   # See Annotations::Config::default_attribute_identifier_template
@@ -23,7 +25,7 @@ class AnnotationAttribute < ActiveRecord::Base
   #   - in all other cases the identifier will be generated using the template specified by
   #     Annotations::Config::default_attribute_identifier_template, where '%s' in the template will be replaced with
   #     the transformation of 'name' through the Proc specified by Annotations::Config::attribute_name_transform_for_identifier.
-  def before_validation
+  def set_identifier
     unless self.name.blank? or !self.identifier.blank?
       if self.name.match(/^<.+>$/)
         self.identifier = self.name[1, self.name.length-1].chop
