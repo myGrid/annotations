@@ -25,7 +25,7 @@ module Annotations
         # This is the same as +#annotations+ on the object, with the added benefit that the object doesnt have to be loaded.
         # E.g: +User.find_annotations_by(10)+ will give all annotations by User with ID 34.
         def annotations_by(id, include_values=false)
-          obj_type = ActiveRecord::Base.send(:class_name_of_active_record_descendant, self).to_s
+          obj_type = self.base_class.name
           
           options = {
             :conditions => { :source_type =>  obj_type, 
@@ -41,7 +41,7 @@ module Annotations
         # Helper finder to get all annotations for all objects of the mixin source type, for the annotatable object provided.
         # E.g: +User.find_annotations_for('Book', 28)+ will give all annotations made by all Users for Book with ID 28. 
         def annotations_for(annotatable_type, annotatable_id, include_values=false)
-          obj_type = ActiveRecord::Base.send(:class_name_of_active_record_descendant, self).to_s
+          obj_type = self.base_class.name
           
           options = {
             :conditions => { :source_type => obj_type,
