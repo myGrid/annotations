@@ -1,4 +1,4 @@
-class Annotation < ActiveRecord::Base
+  class Annotation < ActiveRecord::Base
   include AnnotationsVersionFu
   
   belongs_to :annotatable, 
@@ -75,33 +75,33 @@ class Annotation < ActiveRecord::Base
   
   # Named scope to allow you to include the value records too.
   # Use this to *potentially* improve performance.
-  named_scope :include_values, lambda {
+  scope :include_values, lambda {
     { :include => [ :value ] }
   }
   
   # Finder to get all annotations by a given source.
-  named_scope :by_source, lambda { |source_type, source_id| 
+  scope :by_source, lambda { |source_type, source_id| 
     { :conditions => { :source_type => source_type, 
                        :source_id => source_id },
       :order => "created_at DESC" }
   }
   
   # Finder to get all annotations for a given annotatable.
-  named_scope :for_annotatable, lambda { |annotatable_type, annotatable_id| 
+  scope :for_annotatable, lambda { |annotatable_type, annotatable_id| 
     { :conditions => { :annotatable_type =>  annotatable_type, 
                        :annotatable_id => annotatable_id },
       :order => "created_at DESC" }
   }
   
   # Finder to get all annotations with a given attribute_name.
-  named_scope :with_attribute_name, lambda { |attrib_name|
+  scope :with_attribute_name, lambda { |attrib_name|
     { :conditions => { :annotation_attributes => { :name => attrib_name } },
       :joins => :attribute,
       :order => "created_at DESC" }
   }
 
   # Finder to get all annotations with one of the given attribute_names.
-  named_scope :with_attribute_names, lambda { |attrib_names|
+  scope :with_attribute_names, lambda { |attrib_names|
     conditions = [attrib_names.collect{"annotation_attributes.name = ?"}.join(" or ")] | attrib_names
     { :conditions => conditions,
       :joins => :attribute,
@@ -109,7 +109,7 @@ class Annotation < ActiveRecord::Base
   }
 
   # Finder to get all annotations for a given value_type.
-  named_scope :with_value_type, lambda { |value_type|
+  scope :with_value_type, lambda { |value_type|
     { :conditions => { :value_type =>  value_type },
       :order => "created_at DESC" }
   }
