@@ -35,7 +35,7 @@ module Annotations
         # This is the same as object.annotations with the added benefit that the object doesnt have to be loaded.
         # E.g: Book.find_annotations_for(34) will give all annotations for the Book with ID 34.
         def find_annotations_for(id, include_values=false)
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = { 
             :conditions => { :annotatable_type =>  obj_type, 
@@ -51,7 +51,7 @@ module Annotations
         # Helper finder to get all annotations for all objects of the mixin annotatable type, by the source specified.
         # E.g: Book.find_annotations_by('User', 10) will give all annotations for all Books by User with ID 10. 
         def find_annotations_by(source_type, source_id, include_values=false)
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = {
             :conditions => { :annotatable_type =>  obj_type, 
@@ -76,7 +76,7 @@ module Annotations
         
         # Helper method to get latest annotations
         def latest_annotations(limit=nil, include_values=false)
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = {
             :conditions => { :annotatable_type =>  obj_type, 
@@ -96,7 +96,7 @@ module Annotations
         def annotations_with_attribute(attrib, include_values=false)
           return [] if attrib.blank?
           
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = {
             :joins => :attribute,
@@ -118,7 +118,7 @@ module Annotations
         def annotations_with_attributes(attribs, include_values=false)
           return [] if attribs.blank?
           
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = {
             :joins => :attribute,
@@ -140,7 +140,7 @@ module Annotations
         def annotations_with_attribute_and_by_source(attrib, source, include_values=false)
           return [] if attrib.blank? or source.nil?
           
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = {
             :joins => :attribute,
@@ -165,7 +165,7 @@ module Annotations
         def all_annotations_excluding_attributes(attribs, include_values=false)
           return [] if attribs.blank?
           
-          obj_type = self.base_class.name
+          obj_type = self.class.base_class.name
           
           options = {
             :joins => :attribute,
