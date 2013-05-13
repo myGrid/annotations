@@ -303,7 +303,7 @@
       attr_name = self.attribute_name.downcase
       if Annotations::Config::valid_value_types.has_key?(attr_name) &&
           !([ Annotations::Config::valid_value_types[attr_name] ].flatten.include?(self.value.class.name))
-        self.errors.add_to_base("Annotation value is of an invalid type for attribute name: '#{attr_name}'. Provided value is a #{self.value.class.name}.")
+        self.errors[:base] << "Annotation value is of an invalid type for attribute name: '#{attr_name}'. Provided value is a #{self.value.class.name}."
         ok = false
       end
     end
@@ -321,7 +321,7 @@
         return true
       else
         if self.value.class.has_duplicate_annotation?(self)
-          self.errors.add_to_base("This annotation already exists and is not allowed to be created again.")
+          self.errors[:base] << "This annotation already exists and is not allowed to be created again."
           return false
         else
           return true
@@ -344,7 +344,7 @@
         anns = found_annotatable.annotations_with_attribute_and_by_source(attr_name, self.source)
         
         if anns.length >= max
-          self.errors.add_to_base("The limit has been reached for annotations with this attribute and by this source.")
+          self.errors[:base] << "The limit has been reached for annotations with this attribute and by this source."
           return false
         else
           return true
@@ -370,14 +370,14 @@
               if options[:in].map{|s| s.downcase}.include?(content_to_check.downcase)
                 return true
               else
-                self.errors.add_to_base(options[:error_message])
+                self.errors[:base] << (options[:error_message])
                 return false
               end
             else
               if options[:in].include?(content_to_check)
                 return true
               else
-                self.errors.add_to_base(options[:error_message])
+                self.errors[:base] << (options[:error_message])
                 return false
               end
             end
@@ -388,14 +388,14 @@
               if options[:in] === 0
                 return true
               else
-                self.errors.add_to_base(options[:error_message])
+                self.errors[:base] << (options[:error_message])
                 return false
               end
             else
               if options[:in] === content_to_check.to_i
                 return true
               else
-                self.errors.add_to_base(options[:error_message])
+                self.errors[:base] << (options[:error_message])
                 return false
               end
             end
