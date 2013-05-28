@@ -1,5 +1,3 @@
-require 'rake'
-
 Gem::Specification.new do |s|
   s.name        = 'my_annotations'
   s.version     = '0.6.0'
