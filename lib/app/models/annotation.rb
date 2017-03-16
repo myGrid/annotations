@@ -81,37 +81,37 @@
   
   # Finder to get all annotations by a given source.
   scope :by_source, lambda { |source_type, source_id| 
-    { :conditions => { :source_type => source_type, 
-                       :source_id => source_id },
-      :order => "created_at DESC" }
+    where({ :source_type => source_type,
+            :source_id => source_id }).
+    order('created_at DESC')
   }
   
   # Finder to get all annotations for a given annotatable.
   scope :for_annotatable, lambda { |annotatable_type, annotatable_id| 
-    { :conditions => { :annotatable_type =>  annotatable_type, 
-                       :annotatable_id => annotatable_id },
-      :order => "created_at DESC" }
+    where({ :annotatable_type =>  annotatable_type,
+            :annotatable_id => annotatable_id }).
+    order('created_at DESC')
   }
   
   # Finder to get all annotations with a given attribute_name.
   scope :with_attribute_name, lambda { |attrib_name|
-    { :conditions => { :annotation_attributes => { :name => attrib_name } },
-      :joins => :attribute,
-      :order => "created_at DESC" }
+    where({ :annotation_attributes => { :name => attrib_name } }).
+    joins(:attribute).
+    order('created_at DESC')
   }
 
   # Finder to get all annotations with one of the given attribute_names.
   scope :with_attribute_names, lambda { |attrib_names|
     conditions = [attrib_names.collect{"annotation_attributes.name = ?"}.join(" or ")] | attrib_names
-    { :conditions => conditions,
-      :joins => :attribute,
-      :order => "created_at DESC" }
+    where(conditions).
+    joins(:attribute).
+    order('created_at DESC')
   }
 
   # Finder to get all annotations for a given value_type.
   scope :with_value_type, lambda { |value_type|
-    { :conditions => { :value_type =>  value_type },
-      :order => "created_at DESC" }
+    where({ :value_type =>  value_type }).
+    order('created_at DESC')
   }
   
   # Helper class method to look up an annotatable object

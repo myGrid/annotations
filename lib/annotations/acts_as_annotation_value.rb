@@ -55,17 +55,16 @@ module Annotations
           
           val_table_name = self.table_name
           
-          existing = Annotation.find(:all,
-                                     :joins => "INNER JOIN annotation_attributes ON annotation_attributes.id = annotations.attribute_id
-                                                INNER JOIN #{val_table_name} ON annotations.value_type = '#{self.name}' AND #{val_table_name}.id = annotations.value_id",
-                                     :conditions => [ "annotations.annotatable_type = ? AND 
-                                                       annotations.annotatable_id = ? AND
-                                                       annotation_attributes.name = ? AND
-                                                       #{val_table_name}.#{self.ann_value_content_field} = ?",
-                                                       annotation.annotatable_type,
-                                                       annotation.annotatable_id,
-                                                       annotation.attribute_name,
-                                                       annotation.value.send(self.ann_value_content_field) ])
+          existing = Annotation.joins("INNER JOIN annotation_attributes ON annotation_attributes.id = annotations.attribute_id
+                                       INNER JOIN #{val_table_name} ON annotations.value_type = '#{self.name}' AND #{val_table_name}.id = annotations.value_id").
+                                where("annotations.annotatable_type = ? AND
+                                       annotations.annotatable_id = ? AND
+                                       annotation_attributes.name = ? AND
+                                       #{val_table_name}.#{self.ann_value_content_field} = ?",
+                                       annotation.annotatable_type,
+                                       annotation.annotatable_id,
+                                       annotation.attribute_name,
+                                       annotation.value.send(self.ann_value_content_field))
       
           if existing.length == 0 || existing.first.id == annotation.id
             return false

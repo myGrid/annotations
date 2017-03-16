@@ -45,7 +45,7 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
         end
         
         # Helper finder to get all annotations for all objects of the mixin annotatable type, by the source specified.
@@ -62,7 +62,7 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
         end
       end
       
@@ -87,7 +87,7 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
         end
         
         # Finder to get annotations with a specific attribute.
@@ -108,7 +108,7 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
         end
         
         # Same as the {obj}.annotations_with_attribute method (above) but 
@@ -130,7 +130,7 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
         end
         
         # Finder to get annotations with a specific attribute by a specific source.
@@ -154,7 +154,7 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
         end
         
         # Finder to get all annotations on this object excluding those that
@@ -178,7 +178,16 @@ module Annotations
           
           options[:include] = [ :value ] if include_values
           
-          Annotation.find(:all, options)
+          fetch_annotations(options)
+        end
+        
+        def fetch_annotations(options)
+          annotations = Annotation.where(options[:conditions])
+          annotations = annotations.order(options[:order]) if options[:order]
+          annotations = annotations.joins(options[:joins]) if options[:joins]
+          annotations = annotations.includes(options[:include]) if options[:include]
+
+          annotations
         end
         
         # Returns the number of annotations on this annotatable object by the source type specified.
@@ -188,7 +197,7 @@ module Annotations
           if source_type_in == nil || source_type_in.downcase == "all"
             return self.annotations.count
           else
-            return self.annotations.count(:conditions => { :source_type => source_type_in })  
+            return self.annotations.where(source_type: source_type_in).count
           end
         end
         

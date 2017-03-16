@@ -13,28 +13,28 @@ class AnnotationValueSeed < ActiveRecord::Base
   # Named scope to allow you to include the value records too.
   # Use this to *potentially* improve performance.
   scope :include_values, lambda {
-    { :include => [ :value ] }
+    includes([:value])
   }
 
   # Finder to get all annotation value seeds with a given attrib_name.
   scope :with_attribute_name, lambda { |attrib_name|
-    { :conditions => { :annotation_attributes => { :name => attrib_name } },
-      :joins => :attribute,
-      :order => "created_at DESC" }
+    where(:annotation_attributes => { :name => attrib_name }).
+    joins(:attribute).
+    order('created_at DESC')
   }
 
   # Finder to get all annotation value seeds with one of the given attrib_names.
   scope :with_attribute_names, lambda { |attrib_names|
     conditions = [attrib_names.collect{"annotation_attributes.name = ?"}.join(" or ")] | attrib_names
-    { :conditions => conditions,
-      :joins => :attribute,
-      :order => "created_at DESC" }
+    where(conditions).
+    joins(:attribute).
+    order('created_at DESC')
   }
 
   # Finder to get all annotations for a given value_type.
   scope :with_value_type, lambda { |value_type|
-    { :conditions => { :value_type =>  value_type },
-      :order => "created_at DESC" }
+    where(:value_type => value_type).
+    order('created_at DESC')
   }
   
   def self.find_by_attribute_name(attr_name)
