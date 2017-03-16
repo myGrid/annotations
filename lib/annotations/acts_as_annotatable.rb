@@ -17,11 +17,11 @@ module Annotations
           
           self.annotatable_name_field = options[:name_field] 
           
-          has_many :annotations, 
+          has_many :annotations,
+                   -> { order('updated_at ASC')},
                    :as => :annotatable, 
-                   :dependent => :destroy, 
-                   :order => 'updated_at ASC'
-                   
+                   :dependent => :destroy
+
           __send__ :extend, SingletonMethods
           __send__ :include, InstanceMethods
           

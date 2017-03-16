@@ -10,10 +10,10 @@ module Annotations
       module ClassMethods
         def acts_as_annotation_source
           has_many :annotations_by,
+                   -> { order('updated_at ASC')},
                    :class_name => "Annotation",
-                   :as => :source, 
-                   :order => 'updated_at ASC'
-                   
+                   :as => :source
+
           __send__ :extend, SingletonMethods
           __send__ :include, InstanceMethods
         end
