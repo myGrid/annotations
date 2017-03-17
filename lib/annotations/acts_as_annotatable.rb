@@ -187,7 +187,7 @@ module Annotations
           annotations = annotations.joins(options[:joins]) if options[:joins]
           annotations = annotations.includes(options[:include]) if options[:include]
 
-          annotations
+          annotations.readonly(:false)
         end
         
         # Returns the number of annotations on this annotatable object by the source type specified.
