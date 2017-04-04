@@ -75,12 +75,10 @@
   
   # Named scope to allow you to include the value records too.
   # Use this to *potentially* improve performance.
-  scope :include_values, lambda {
-    { :include => [ :value ] }
-  }
+  scope :include_values, -> { includes(:value) }
   
   # Finder to get all annotations by a given source.
-  scope :by_source, lambda { |source_type, source_id| 
+  scope :by_source, lambda { |source_type, source_id|
     where({ :source_type => source_type,
             :source_id => source_id }).
     order('created_at DESC')
