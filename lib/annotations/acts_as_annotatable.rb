@@ -182,12 +182,13 @@ module Annotations
         end
         
         def fetch_annotations(options)
-          annotations = Annotation.where(options[:conditions])
+          annotations = Annotation.where('').readonly(false)
           annotations = annotations.order(options[:order]) if options[:order]
           annotations = annotations.joins(options[:joins]) if options[:joins]
+          annotations = annotations.where(options[:conditions]) if options[:conditions]
           annotations = annotations.includes(options[:include]) if options[:include]
 
-          annotations.readonly(:false)
+          annotations
         end
         
         # Returns the number of annotations on this annotatable object by the source type specified.
