@@ -135,12 +135,12 @@
   end
   
   def attribute_name
-    self.attribute.name
+    self.annotation_attribute.name
   end
   
   def attribute_name=(attr_name)
     attr_name = attr_name.to_s.strip
-    self.attribute = AnnotationAttribute.find_or_create_by(name: attr_name)
+    self.annotation_attribute = AnnotationAttribute.find_or_create_by(name: attr_name)
   end
   
   alias_method :original_set_value=, :value=

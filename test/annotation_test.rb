@@ -42,8 +42,8 @@ class AnnotationTest < ActiveSupport::TestCase
   end
   
   def test_belongs_to_attribute_association
-    assert_equal annotation_attributes(:aa_length), annotations(:bh_length_1).attribute
-    assert_equal annotation_attributes(:aa_tag), annotations(:br_tag_1).attribute
+    assert_equal annotation_attributes(:aa_length), annotations(:bh_length_1).annotation_attribute
+    assert_equal annotation_attributes(:aa_tag), annotations(:br_tag_1).annotation_attribute
   end
   
   def test_include_values_named_scope
@@ -92,7 +92,7 @@ class AnnotationTest < ActiveSupport::TestCase
     
     attr = AnnotationAttribute.find_by_name(attr_name)
     
-    assert_equal ann.attribute, attr
+    assert_equal ann.annotation_attribute, attr
   end
   
   def test_annotation_create_with_implicit_value
