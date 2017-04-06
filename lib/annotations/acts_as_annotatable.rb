@@ -99,7 +99,7 @@ module Annotations
           obj_type = self.class.base_class.name
           
           options = {
-            :joins => :attribute,
+            :joins => :annotation_attribute,
             :conditions => { :annotatable_type => obj_type,
             :annotatable_id => self.id,
             :annotation_attributes =>  { :name => attrib.strip.downcase } },
@@ -121,7 +121,7 @@ module Annotations
           obj_type = self.class.base_class.name
           
           options = {
-            :joins => :attribute,
+            :joins => :annotation_attribute,
             :conditions => { :annotatable_type => obj_type,
                              :annotatable_id => self.id,
                              :annotation_attributes =>  { :name => attribs } },
@@ -143,7 +143,7 @@ module Annotations
           obj_type = self.class.base_class.name
           
           options = {
-            :joins => :attribute,
+            :joins => :annotation_attribute,
             :conditions => { :annotatable_type => obj_type,
                              :annotatable_id => self.id,
                              :source_type => source.class.name,
@@ -168,7 +168,7 @@ module Annotations
           obj_type = self.class.base_class.name
           
           options = {
-            :joins => :attribute,
+            :joins => :annotation_attribute,
             :conditions => [ "`annotations`.`annotatable_type` = ? AND `annotations`.`annotatable_id` = ? AND `annotation_attributes`.`name` NOT IN (?)",
                              obj_type,
                              self.id,
@@ -222,7 +222,7 @@ module Annotations
               val = [ val ].flatten
               val.each do |val_inner|
                 unless val_inner.blank?
-                  ann = self.annotations.new(:attribute_name => attrib,
+                  ann = self.annotations.new(:annotation_attribute_name => attrib,
                                              :source_type => source.class.name,
                                              :source_id => source.id)
                   

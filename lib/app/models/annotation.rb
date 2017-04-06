@@ -11,7 +11,7 @@
              :polymorphic => true,
              :autosave => true
              
-  belongs_to :attribute,
+  belongs_to :annotation_attribute,
              :class_name => "AnnotationAttribute",
              :foreign_key => "attribute_id"
              
@@ -49,7 +49,7 @@
     belongs_to :value,
                :polymorphic => true
                
-    belongs_to :attribute,
+    belongs_to :annotation_attribute,
                :class_name => "AnnotationAttribute",
                :foreign_key => "attribute_id"
              
@@ -94,7 +94,7 @@
   # Finder to get all annotations with a given attribute_name.
   scope :with_attribute_name, lambda { |attrib_name|
     where({ :annotation_attributes => { :name => attrib_name } }).
-    joins(:attribute).
+    joins(:annotation_attribute).
     order('created_at DESC')
   }
 
@@ -102,7 +102,7 @@
   scope :with_attribute_names, lambda { |attrib_names|
     conditions = [attrib_names.collect{"annotation_attributes.name = ?"}.join(" or ")] | attrib_names
     where(conditions).
-    joins(:attribute).
+    joins(:annotation_attribute).
     order('created_at DESC')
   }
 

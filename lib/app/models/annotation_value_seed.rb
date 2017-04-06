@@ -6,7 +6,7 @@ class AnnotationValueSeed < ActiveRecord::Base
   belongs_to :value,
              :polymorphic => true
              
-  belongs_to :attribute,
+  belongs_to :annotation_attribute,
              :class_name => "AnnotationAttribute",
              :foreign_key => "attribute_id"
 
@@ -19,7 +19,7 @@ class AnnotationValueSeed < ActiveRecord::Base
   # Finder to get all annotation value seeds with a given attrib_name.
   scope :with_attribute_name, lambda { |attrib_name|
     where(:annotation_attributes => { :name => attrib_name }).
-    joins(:attribute).
+    joins(:annotation_attribute).
     order('created_at DESC')
   }
 
@@ -27,7 +27,7 @@ class AnnotationValueSeed < ActiveRecord::Base
   scope :with_attribute_names, lambda { |attrib_names|
     conditions = [attrib_names.collect{"annotation_attributes.name = ?"}.join(" or ")] | attrib_names
     where(conditions).
-    joins(:attribute).
+    joins(:annotation_attribute).
     order('created_at DESC')
   }
 
@@ -40,9 +40,8 @@ class AnnotationValueSeed < ActiveRecord::Base
   def self.find_by_attribute_name(attr_name)
     return [] if attr_name.blank?
           
-    AnnotationValueSeed.find(:all,
-                             :joins => [ :attribute ],
-                             :conditions => { :annotation_attributes => { :name => attr_name } },
-                             :order => "created_at DESC")
+    AnnotationValueSeed.joins(:annotation_attribute).
+        where(annotation_attributes: { name: attr_name }).
+        order('created_at DESC')
   end
 end
