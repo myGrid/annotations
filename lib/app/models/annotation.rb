@@ -2,10 +2,12 @@
   include AnnotationsVersionFu
   
   belongs_to :annotatable, 
-             :polymorphic => true
+             :polymorphic => true,
+             :inverse_of => :annotations
   
   belongs_to :source, 
-             :polymorphic => true
+             :polymorphic => true,
+             :inverse_of => :annotations_by
              
   belongs_to :value,
              :polymorphic => true,
@@ -22,13 +24,11 @@
   
   validates_presence_of :source_type,
                         :source_id,
-                        :annotatable_type,
-                        :annotatable_id,
+                        :annotatable,
                         :attribute_id,
                         :value_type
                         
-  validate :check_annotatable,
-           :check_source,
+  validate :check_source,
            :check_value,
            :check_duplicate,
            :check_limit_per_source,
@@ -270,16 +270,7 @@
   # ===========
   # Validations
   # -----------
-  
-  def check_annotatable
-    if Annotation.find_annotatable(self.annotatable_type, self.annotatable_id).nil?
-      self.errors.add(:annotatable_id, "doesn't exist")
-      return false
-    else
-      return true
-    end
-  end
-  
+
   def check_source
     if Annotation.find_source(self.source_type, self.source_id).nil?
       self.errors.add(:source_id, "doesn't exist")

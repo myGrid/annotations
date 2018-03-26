@@ -20,7 +20,8 @@ module Annotations
           has_many :annotations,
                    -> { order('updated_at ASC')},
                    :as => :annotatable, 
-                   :dependent => :destroy
+                   :dependent => :destroy,
+                   :inverse_of => :annotatable
 
           __send__ :extend, SingletonMethods
           __send__ :include, InstanceMethods
