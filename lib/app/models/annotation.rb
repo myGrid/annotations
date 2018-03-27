@@ -66,9 +66,11 @@
     # NOTE: make sure to update the logic in here 
     # if Annotation#value_content changes!
     def value_content
+      if defined?(@raw_value)
+        return @raw_value.respond_to?(:ann_content) ? @raw_value.ann_content : @raw_value
+      end
       self.value.nil? ? "" : self.value.ann_content
     end
-  
   end
   
   # ========================
@@ -151,6 +153,9 @@
   end
   
   def value_content
+    if defined?(@raw_value)
+      return @raw_value.respond_to?(:ann_content) ? @raw_value.ann_content : @raw_value
+    end
     self.value.nil? ? "" : self.value.ann_content
   end
   
